@@ -188,6 +188,8 @@ startup
     BTFSC	mode_select_flag,startup_mode_flag
     GOTO	startup
     GOTO	mode
+    
+;new line of code
 ;<editor-fold defaultstate="collapsed" desc="Main Menu">
 
 mode
