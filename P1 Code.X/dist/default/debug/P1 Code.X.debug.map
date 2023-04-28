@@ -1,0 +1,430 @@
+MPLINK 5.09, LINKER
+Linker Map File - Created Thu Mar 30 21:16:12 2023
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000004
+                   .cinit    romdata   0x000004    program   0x000002
+                   .org_1       code   0x000008    program   0x001102
+.config_300001_BUILD/DEFAULT/DEBUG/_EXT/2088238    romdata   0x300001    program   0x000001
+.config_300003_BUILD/DEFAULT/DEBUG/_EXT/2088238    romdata   0x300003    program   0x000001
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000005      
+                            0x000008    0x001109      
+                            0x300001    0x300001      
+                            0x300003    0x300003      
+            4362 out of 33048 program addresses used, program memory utilization is 13%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                ADCpoll_l   0x000f88    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                ADCpoll_m   0x000f9e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                ADCpoll_r   0x000fb4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                SSD_clear   0x000fd6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              SSD_display   0x000fca    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                    Setup   0x000012    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_black_l   0x00029c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_black_m   0x000404    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_black_r   0x00056c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               cal_blue_l   0x0002f6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               cal_blue_m   0x00045e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               cal_blue_r   0x0005c6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_green_l   0x000350    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_green_m   0x0004b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_green_r   0x000620    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                cal_red_l   0x0003aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                cal_red_m   0x000512    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                cal_red_r   0x00067a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_black_l   0x00028e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_black_m   0x0003f6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_black_r   0x00055e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_blue_l   0x0002e8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_blue_m   0x000450    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_blue_r   0x0005b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_green_l   0x000342    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_green_m   0x0004aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_green_r   0x000612    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ calibration_buffer_red_l   0x00039c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ calibration_buffer_red_m   0x000504    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ calibration_buffer_red_r   0x00066c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_black_l   0x000a04    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_black_m   0x000a24    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_black_r   0x000a3a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             check_blue_l   0x000a54    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             check_blue_m   0x000a7e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             check_blue_r   0x000a9e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_green_l   0x000ac2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_green_m   0x000af0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_green_r   0x000b14    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              check_red_l   0x000b38    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              check_red_m   0x000b62    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              check_red_r   0x000b82    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_RGB_l   0x0010e6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_RGB_m   0x0010f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_RGB_r   0x0010fe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_black_l   0x000a22    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_black_m   0x000a38    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_black_r   0x000a4e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             clear_blue_l   0x000a7c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             clear_blue_m   0x000a9c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             clear_blue_r   0x000abc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_green_l   0x000aea    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_green_m   0x000b0e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_green_r   0x000b32    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_red_l   0x000b60    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_red_m   0x000b80    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_red_r   0x000ba0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   colour_detector_buffer   0x0007de    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             delay_loop_1   0x000f5c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           delay_loop_333   0x000f72    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_black_l   0x0006c6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_black_l_isr   0x000e40    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_black_m   0x000726    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_black_m_isr   0x000ea0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_black_r   0x000782    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_black_r_isr   0x000efc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            detect_blue_l   0x0006e2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        detect_blue_l_isr   0x000e5c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            detect_blue_m   0x00073e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        detect_blue_m_isr   0x000eb8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            detect_blue_r   0x00079a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        detect_blue_r_isr   0x000f14    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_green_l   0x0006f6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_green_l_isr   0x000e70    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_green_m   0x000752    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_green_m_isr   0x000ecc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_green_r   0x0007ae    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_green_r_isr   0x000f28    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             detect_red_l   0x00070a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         detect_red_l_isr   0x000e84    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             detect_red_m   0x000766    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         detect_red_m_isr   0x000ee0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             detect_red_r   0x0007c2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         detect_red_r_isr   0x000f3c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_white_l   0x00071e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_white_l_isr   0x000e98    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_white_m   0x00077a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_white_m_isr   0x000ef4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_white_r   0x0007d6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_white_r_isr   0x000f50    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    end_register_dump_isr   0x000f58    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ err_t_left_str_str_black   0x000bc8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+  err_t_left_str_str_blue   0x000c6c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ err_t_left_str_str_green   0x000d10    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   err_t_left_str_str_red   0x000db4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              error_black   0x000c04    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               error_blue   0x000ca8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              error_green   0x000d4c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                error_red   0x000df0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    error_turn_left_black   0x000bdc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     error_turn_left_blue   0x000c80    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    error_turn_left_green   0x000d24    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      error_turn_left_red   0x000dc8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  go_on_1   0x000f60    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              go_on_1_333   0x000f76    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  go_on_2   0x000f64    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              go_on_2_333   0x000f7a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          initialize_RGBs   0x000fe4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                     mode   0x0000dc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                nav_black   0x000ba6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     nav_black_inner_loop   0x000bb0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          nav_black_start   0x000bbe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 nav_blue   0x000c4a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      nav_blue_inner_loop   0x000c54    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           nav_blue_start   0x000c62    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                nav_green   0x000cee    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     nav_green_inner_loop   0x000cf8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          nav_green_start   0x000d06    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 nav_mode   0x0007e8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  nav_red   0x000d92    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       nav_red_inner_loop   0x000d9c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            nav_red_start   0x000daa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   poll_l   0x000f92    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   poll_m   0x000fa8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   poll_r   0x000fbe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        register_dump_isr   0x000e40    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_black   0x0007fe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_black_buffer   0x000882    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_black_l   0x001032    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_black_m   0x00106e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_black_r   0x0010aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    show_black_transition   0x000818    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                show_blue   0x00088a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         show_blue_buffer   0x000900    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              show_blue_l   0x00103e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              show_blue_m   0x00107a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              show_blue_r   0x0010b6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     show_blue_transition   0x00089e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   show_c   0x0000f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            show_c_buffer   0x000176    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_c_transition   0x00010c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   show_d   0x000182    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            show_d_buffer   0x000200    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_d_transition   0x000196    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_green   0x000908    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_green_buffer   0x00097e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_green_l   0x00104a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_green_m   0x001086    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_green_r   0x0010c2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    show_green_transition   0x00091c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   show_n   0x000208    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            show_n_buffer   0x000286    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_n_transition   0x00021c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 show_red   0x000986    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          show_red_buffer   0x0009fc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_red_l   0x001056    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_red_m   0x001092    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_red_r   0x0010ce    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      show_red_transition   0x00099a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_white_l   0x001062    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_white_m   0x00109e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_white_r   0x0010da    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  startup   0x0000b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       startup_transition   0x0000aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         state_change_ISR   0x000e36    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               stop_black   0x000c3c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                stop_blue   0x000ce0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               stop_green   0x000d84    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 stop_red   0x000e28    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           straight_black   0x000c20    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            straight_blue   0x000cc4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           straight_green   0x000d68    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             straight_red   0x000e0c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      straight_stop_black   0x000bfa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       straight_stop_blue   0x000c9e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      straight_stop_green   0x000d42    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        straight_stop_red   0x000de6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+  straight_straight_black   0x000be6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   straight_straight_blue   0x000c8a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+  straight_straight_green   0x000d2e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    straight_straight_red   0x000dd2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+t_right_err_str_stop_black   0x000bd2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+t_right_err_str_stop_blue   0x000c76    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+t_right_err_str_stop_green   0x000d1a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ t_right_err_str_stop_red   0x000dbe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          turn_left_black   0x000c12    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           turn_left_blue   0x000cb6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          turn_left_green   0x000d5a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            turn_left_red   0x000dfe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         turn_right_black   0x000c2e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          turn_right_blue   0x000cd2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   turn_right_error_black   0x000bf0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    turn_right_error_blue   0x000c94    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   turn_right_error_green   0x000d38    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     turn_right_error_red   0x000ddc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         turn_right_green   0x000d76    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           turn_right_red   0x000e1a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                    Setup   0x000012    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       startup_transition   0x0000aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  startup   0x0000b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                     mode   0x0000dc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   show_c   0x0000f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_c_transition   0x00010c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            show_c_buffer   0x000176    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   show_d   0x000182    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_d_transition   0x000196    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            show_d_buffer   0x000200    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   show_n   0x000208    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_n_transition   0x00021c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            show_n_buffer   0x000286    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_black_l   0x00028e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_black_l   0x00029c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_blue_l   0x0002e8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               cal_blue_l   0x0002f6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_green_l   0x000342    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_green_l   0x000350    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ calibration_buffer_red_l   0x00039c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                cal_red_l   0x0003aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_black_m   0x0003f6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_black_m   0x000404    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_blue_m   0x000450    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               cal_blue_m   0x00045e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_green_m   0x0004aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_green_m   0x0004b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ calibration_buffer_red_m   0x000504    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                cal_red_m   0x000512    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_black_r   0x00055e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_black_r   0x00056c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_blue_r   0x0005b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               cal_blue_r   0x0005c6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+calibration_buffer_green_r   0x000612    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              cal_green_r   0x000620    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ calibration_buffer_red_r   0x00066c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                cal_red_r   0x00067a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_black_l   0x0006c6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            detect_blue_l   0x0006e2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_green_l   0x0006f6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             detect_red_l   0x00070a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_white_l   0x00071e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_black_m   0x000726    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            detect_blue_m   0x00073e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_green_m   0x000752    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             detect_red_m   0x000766    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_white_m   0x00077a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_black_r   0x000782    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            detect_blue_r   0x00079a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_green_r   0x0007ae    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             detect_red_r   0x0007c2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           detect_white_r   0x0007d6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   colour_detector_buffer   0x0007de    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 nav_mode   0x0007e8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_black   0x0007fe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    show_black_transition   0x000818    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_black_buffer   0x000882    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                show_blue   0x00088a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     show_blue_transition   0x00089e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         show_blue_buffer   0x000900    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_green   0x000908    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    show_green_transition   0x00091c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        show_green_buffer   0x00097e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 show_red   0x000986    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      show_red_transition   0x00099a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          show_red_buffer   0x0009fc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_black_l   0x000a04    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_black_l   0x000a22    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_black_m   0x000a24    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_black_m   0x000a38    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_black_r   0x000a3a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_black_r   0x000a4e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             check_blue_l   0x000a54    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             clear_blue_l   0x000a7c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             check_blue_m   0x000a7e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             clear_blue_m   0x000a9c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             check_blue_r   0x000a9e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             clear_blue_r   0x000abc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_green_l   0x000ac2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_green_l   0x000aea    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_green_m   0x000af0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_green_m   0x000b0e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            check_green_r   0x000b14    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            clear_green_r   0x000b32    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              check_red_l   0x000b38    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_red_l   0x000b60    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              check_red_m   0x000b62    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_red_m   0x000b80    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              check_red_r   0x000b82    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_red_r   0x000ba0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                nav_black   0x000ba6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     nav_black_inner_loop   0x000bb0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          nav_black_start   0x000bbe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ err_t_left_str_str_black   0x000bc8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+t_right_err_str_stop_black   0x000bd2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    error_turn_left_black   0x000bdc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+  straight_straight_black   0x000be6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   turn_right_error_black   0x000bf0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      straight_stop_black   0x000bfa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              error_black   0x000c04    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          turn_left_black   0x000c12    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           straight_black   0x000c20    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         turn_right_black   0x000c2e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               stop_black   0x000c3c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 nav_blue   0x000c4a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      nav_blue_inner_loop   0x000c54    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           nav_blue_start   0x000c62    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+  err_t_left_str_str_blue   0x000c6c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+t_right_err_str_stop_blue   0x000c76    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     error_turn_left_blue   0x000c80    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   straight_straight_blue   0x000c8a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    turn_right_error_blue   0x000c94    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       straight_stop_blue   0x000c9e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               error_blue   0x000ca8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           turn_left_blue   0x000cb6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            straight_blue   0x000cc4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          turn_right_blue   0x000cd2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                stop_blue   0x000ce0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                nav_green   0x000cee    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     nav_green_inner_loop   0x000cf8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          nav_green_start   0x000d06    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ err_t_left_str_str_green   0x000d10    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+t_right_err_str_stop_green   0x000d1a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    error_turn_left_green   0x000d24    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+  straight_straight_green   0x000d2e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   turn_right_error_green   0x000d38    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      straight_stop_green   0x000d42    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              error_green   0x000d4c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          turn_left_green   0x000d5a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           straight_green   0x000d68    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         turn_right_green   0x000d76    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               stop_green   0x000d84    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  nav_red   0x000d92    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       nav_red_inner_loop   0x000d9c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            nav_red_start   0x000daa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+   err_t_left_str_str_red   0x000db4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+ t_right_err_str_stop_red   0x000dbe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+      error_turn_left_red   0x000dc8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    straight_straight_red   0x000dd2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+     turn_right_error_red   0x000ddc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        straight_stop_red   0x000de6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                error_red   0x000df0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+            turn_left_red   0x000dfe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             straight_red   0x000e0c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           turn_right_red   0x000e1a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                 stop_red   0x000e28    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         state_change_ISR   0x000e36    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_black_l_isr   0x000e40    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        register_dump_isr   0x000e40    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        detect_blue_l_isr   0x000e5c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_green_l_isr   0x000e70    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         detect_red_l_isr   0x000e84    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_white_l_isr   0x000e98    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_black_m_isr   0x000ea0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        detect_blue_m_isr   0x000eb8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_green_m_isr   0x000ecc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         detect_red_m_isr   0x000ee0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_white_m_isr   0x000ef4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_black_r_isr   0x000efc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+        detect_blue_r_isr   0x000f14    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_green_r_isr   0x000f28    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+         detect_red_r_isr   0x000f3c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+       detect_white_r_isr   0x000f50    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+    end_register_dump_isr   0x000f58    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             delay_loop_1   0x000f5c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  go_on_1   0x000f60    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                  go_on_2   0x000f64    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+           delay_loop_333   0x000f72    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              go_on_1_333   0x000f76    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              go_on_2_333   0x000f7a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                ADCpoll_l   0x000f88    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   poll_l   0x000f92    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                ADCpoll_m   0x000f9e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   poll_m   0x000fa8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                ADCpoll_r   0x000fb4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                   poll_r   0x000fbe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              SSD_display   0x000fca    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+                SSD_clear   0x000fd6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+          initialize_RGBs   0x000fe4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_black_l   0x001032    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              show_blue_l   0x00103e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_green_l   0x00104a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_red_l   0x001056    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_white_l   0x001062    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_black_m   0x00106e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              show_blue_m   0x00107a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_green_m   0x001086    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_red_m   0x001092    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_white_m   0x00109e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_black_r   0x0010aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              show_blue_r   0x0010b6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_green_r   0x0010c2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+               show_red_r   0x0010ce    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+             show_white_r   0x0010da    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_RGB_l   0x0010e6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_RGB_m   0x0010f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+              clear_RGB_r   0x0010fe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X\EMK310_Practical_1_Code.asm
+
+

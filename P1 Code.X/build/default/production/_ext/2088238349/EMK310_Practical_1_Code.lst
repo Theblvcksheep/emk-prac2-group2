@@ -1,0 +1,4066 @@
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001     list        p=PIC18f45K22
+                      00002     #include    "p18f45K22.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; Build date : Jan 06 2020
+                      00005 ;  MPASM PIC18F45K22 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2020 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      02795         LIST
+                      00003     
+                      00004 ;========== Configuration bits ==========
+                      00005     CONFIG  FOSC = INTIO67
+                      00006     CONFIG  WDTEN = OFF
+                      00007 
+                      00008 ;========== Variable definitions ==========
+                      00009 ;<editor-fold defaultstate="collapsed" desc="Variables">
+                      00010    cblock 0x20
+  00000020            00011         outer_loop_1;0x20
+  00000021            00012         inner_loop_1;0x21
+  00000022            00013         sensor_l;0x22
+  00000023            00014         sensor_m;0x23
+  00000024            00015         sensor_r;0x24
+  00000025            00016         ADC_result_l;0x25
+  00000026            00017         ADC_result_r;0x26
+  00000027            00018         ADC_result_m;0x27
+  00000028            00019         mode_select;0x28
+  00000029            00020         mode_select_flag;0x29
+  0000002A            00021         SSD;0x30
+  0000002B            00022         outer_loop_333;0x31
+  0000002C            00023         inner_loop_333;0x32
+  0000002D            00024         black_h_l;0x33
+  0000002E            00025         blue_h_l;0x34
+  0000002F            00026         green_h_l;0x35
+  00000030            00027         red_h_l;0x36
+  00000031            00028         black_h_m;0x37
+  00000032            00029         blue_h_m;0x38
+  00000033            00030         green_h_m;0x39
+  00000034            00031         red_h_m;0x40
+  00000035            00032         black_h_r;0x41
+  00000036            00033         blue_h_r;0x42
+  00000037            00034         green_h_r;0x43
+  00000038            00035         red_h_r;0x44
+  00000039            00036         nav_reg;0x45
+  0000003A            00037         counter1;0x46
+  0000003B            00038         counter2;0x46
+                      00039         endc
+                      00040  ;</editor-fold>
+                      00041 ;========== Reset vector ==========
+                      00042         org     00h
+000000 EF?? F???      00043         goto    Setup  
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00044     
+                      00045 ;========== Interrupt vector ==========
+                      00046         org     08h
+000008 B029           00047         BTFSC   mode_select_flag,startup_mode_flag
+00000A EF?? F???      00048         GOTO    state_change_ISR 
+00000E EF?? F???      00049         GOTO    register_dump_isr
+                      00050         
+                      00051 ;========== Initialization ==========
+                      00052 ;<editor-fold defaultstate="collapsed" desc="Setup">
+                      00053 
+000012                00054 Setup
+                      00055     ; Initialize variables
+000012 6A20           00056     CLRF        outer_loop_1
+000014 6A21           00057     CLRF        inner_loop_1
+000016 6A22           00058     CLRF        sensor_l
+000018 6A23           00059     CLRF        sensor_m
+00001A 6A24           00060     CLRF        sensor_r
+00001C 6A28           00061     CLRF        mode_select
+00001E 6A29           00062     CLRF        mode_select_flag
+000020 6A2A           00063     CLRF        SSD
+000022 6A25           00064     CLRF        ADC_result_l
+000024 6A26           00065     CLRF        ADC_result_r
+000026 6A27           00066     CLRF        ADC_result_m
+000028 6A2B           00067     CLRF        outer_loop_333
+00002A 6A2C           00068     CLRF        inner_loop_333
+00002C 6A2D           00069     CLRF        black_h_l
+00002E 6A2E           00070     CLRF        blue_h_l
+000030 6A2F           00071     CLRF        green_h_l           
+000032 6A30           00072     CLRF        red_h_l
+000034 6A31           00073     CLRF        black_h_m
+000036 6A32           00074     CLRF        blue_h_m
+000038 6A33           00075     CLRF        green_h_m
+00003A 6A34           00076     CLRF        red_h_m
+00003C 6A35           00077     CLRF        black_h_r
+00003E 6A36           00078     CLRF        blue_h_r
+000040 6A37           00079     CLRF        green_h_r
+000042 6A38           00080     CLRF        red_h_r
+000044 6A39           00081     CLRF        nav_reg
+000046 6A3A           00082     CLRF        counter1
+000048 6A3B           00083     CLRF        counter2
+                      00084 
+                      00085     
+  00000000            00086 startup_mode                EQU     0
+  00000001            00087 mode_select_mode            EQU     1
+  00000002            00088 calibration_mode            EQU     2
+  00000003            00089 colour_detector_mode        EQU     3
+  00000004            00090 navigation_mode             EQU     4
+                      00091 
+  00000000            00092 startup_mode_flag           EQU     0
+  00000001            00093 mode_selsct_mode_flag       EQU     1
+  00000002            00094 calibiration_mode_flag      EQU     2
+  00000003            00095 colour_derector_mode_flag   EQU     3
+  00000004            00096 navigation_mode_flag        EQU     4
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00097             
+  00000002            00098 l       EQU     2
+  00000001            00099 m       EQU     1
+  00000000            00100 r       EQU     0
+                      00101         
+00004A 0E01           00102     MOVLW       D'1'
+00004C 6E3A           00103     MOVWF       counter1
+00004E 0E01           00104     MOVLW       D'1'
+000050 6E3B           00105     MOVWF       counter2
+                      00106             
+000052 8029           00107     BSF         mode_select_flag,startup_mode_flag
+                      00108     
+                      00109     ; Initialize Ports
+000054 010F           00110     MOVLB       0xF
+                      00111     
+000056 6A80           00112     CLRF        PORTA       ;PORT-Write/Read
+000058 6A89           00113     CLRF        LATA        ;LAT-Wrire to PORT/Read from LAT register
+00005A 6B38           00114     CLRF        ANSELA      ;ANSEL-'1'=analog pin/'0'=digital pin
+00005C 6A92           00115     CLRF        TRISA       ;TRIS-'1'=input pin/'0'=output pin
+                      00116     
+00005E 6A81           00117     CLRF        PORTB
+000060 6A8A           00118     CLRF        LATB
+000062 6B39           00119     CLRF        ANSELB
+000064 6A93           00120     CLRF        TRISB
+                      00121     
+000066 6A82           00122     CLRF        PORTC
+000068 6A8B           00123     CLRF        LATC
+00006A 6B3A           00124     CLRF        ANSELC
+00006C 6A94           00125     CLRF        TRISC
+                      00126     
+00006E 6A83           00127     CLRF        PORTD
+000070 6A8C           00128     CLRF        LATD
+000072 6B3B           00129     CLRF        ANSELD
+000074 6A95           00130     CLRF        TRISD
+                      00131     
+000076 6A84           00132     CLRF        PORTE       ;PORT-Write/Read
+000078 6A8D           00133     CLRF        LATE        ;LAT-Wrire to PORT/Read from LAT register
+00007A 6B3C           00134     CLRF        ANSELE      ;ANSEL-'1'=analog pin/'0'=digital pin
+00007C 6A96           00135     CLRF        TRISE       ;TRIS-'1'=input pin/'0'=output pin
+                      00136     
+                      00137     ;Interupt ports
+00007E 8093           00138     BSF         TRISB,0
+000080 9139           00139     BCF         ANSELB,0
+                      00140     
+                      00141     ; Initialize Interrupts
+000082 6AF2           00142     CLRF        INTCON  
+000084 88F2           00143     BSF         INTCON,INT0IE
+000086 8EF2           00144     BSF         INTCON,GIE
+                      00145     
+                      00146     ; Initialize oscillator
+000088 88D3           00147     BSF     OSCCON,IRCF0
+00008A 9AD3           00148     BCF     OSCCON,IRCF1
+00008C 8CD3           00149     BSF     OSCCON,IRCF2        ; IRCF<2:0> = '101' = 4Mhz
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00150 
+                      00151     ; Initialize ADC
+00008E 8694           00152     BSF         TRISC,3         ;RC3 = input
+000090 873A           00153     BSF         ANSELC,3        ;RC3 = analog
+                      00154     
+000092 8894           00155     BSF         TRISC,4         ;RC4 = input
+000094 893A           00156     BSF         ANSELC,4        ;RC4 = analog
+                      00157     
+000096 8A94           00158     BSF         TRISC,5         ;RC5 = input
+000098 8B3A           00159     BSF         ANSELC,5        ;RC5 = analog
+                      00160     
+00009A 6AC4           00161     CLRF        ADRESH
+00009C 0E2F           00162     MOVLW       B'00101111'     ;left justify
+00009E 6EC0           00163     MOVWF       ADCON2          ;& 12 TAD ACQ time
+0000A0 0E00           00164     MOVLW       B'00000000'
+0000A2 6EC1           00165     MOVWF       ADCON1          ;ADC ref = Vdd, Vss
+0000A4 0100           00166     MOVLB       0x00
+0000A6 EF?? F???      00167     GOTO        startup_transition
+                      00168  ;</editor-fold>
+                      00169 ; ------------- 
+                      00170 ; PROGRAM START 
+                      00171 ; -------------
+                      00172 
+0000AA                00173 startup_transition
+                      00174     ;GOTO       cal_black_l             ;uncomment for adc test
+0000AA B029           00175     BTFSC       mode_select_flag,startup_mode_flag
+0000AC EF?? F???      00176     GOTO        startup
+0000B0 EF?? F???      00177     GOTO        mode
+                      00178     
+0000B4                00179 startup 
+0000B4 EC?? F???      00180     CALL        SSD_clear
+0000B8 0EFF           00181     MOVLW       B'11111111'
+0000BA CFE8 F02A      00182     MOVFF       WREG,SSD
+0000BE EC?? F???      00183     CALL        SSD_display     ;on
+0000C2 EC?? F???      00184     CALL        delay_loop_333
+0000C6 EC?? F???      00185     CALL        SSD_clear
+0000CA EC?? F???      00186     CALL        delay_loop_333
+                      00187     
+0000CE B029           00188     BTFSC       mode_select_flag,startup_mode_flag
+0000D0 EF?? F???      00189     GOTO        startup
+0000D4 EF?? F???      00190     GOTO        mode
+                      00191 ;<editor-fold defaultstate="collapsed" desc="Main Menu">
+                      00192 
+0000D8                00193 mode
+0000D8 010F           00194     MOVLB       0xF
+                      00195     ;Initialize PORTB
+0000DA 6A81           00196     CLRF        PORTB
+0000DC 6A8A           00197     CLRF        LATB
+0000DE 6B39           00198     CLRF        ANSELB
+0000E0 6A93           00199     CLRF        TRISB
+                      00200     
+                      00201    ;Disable Interrupts
+0000E2 6AF2           00202     CLRF        INTCON  
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000E4 98F2           00203     BCF         INTCON,INT0IE
+0000E6 9EF2           00204     BCF         INTCON,GIE
+                      00205     
+                      00206     ;Set up port b for digital inputs
+0000E8 8093           00207     BSF         TRISB,0
+0000EA 9139           00208     BCF         ANSELB,0
+0000EC 0100           00209     MOVLB       0x00
+                      00210     
+0000EE                00211 show_c
+0000EE 0E4E           00212     MOVLW       B'01001110'
+0000F0 CFE8 F02A      00213     MOVFF       WREG,SSD
+0000F4 EC?? F???      00214     CALL        SSD_display
+0000F8 0000           00215     NOP
+0000FA EC?? F???      00216     CALL        delay_loop_333
+0000FE A081           00217     BTFSS       PORTB,0
+000100 EF?? F???      00218     GOTO        show_c
+000104 EF?? F???      00219     GOTO        show_c_transition
+                      00220     
+000108                00221 show_c_transition
+000108 EC?? F???      00222     CALL        delay_loop_333
+                      00223     
+00010C EC?? F???      00224     CALL        SSD_clear
+                      00225     
+000110 EC?? F???      00226     CALL        delay_loop_333
+                      00227     
+000114 0E4E           00228     MOVLW       B'01001110'
+000116 CFE8 F02A      00229     MOVFF       WREG,SSD
+00011A EC?? F???      00230     CALL        SSD_display
+                      00231     
+00011E EC?? F???      00232     CALL        delay_loop_333
+                      00233     
+000122 EC?? F???      00234     CALL        SSD_clear
+                      00235     
+000126 EC?? F???      00236     CALL        delay_loop_333
+                      00237     
+00012A 0E4E           00238     MOVLW       B'01001110'
+00012C CFE8 F02A      00239     MOVFF       WREG,SSD
+000130 EC?? F???      00240     CALL        SSD_display
+                      00241     
+000134 EC?? F???      00242     CALL        delay_loop_333
+                      00243     
+000138 EC?? F???      00244     CALL        SSD_clear
+                      00245     
+00013C EC?? F???      00246     CALL        delay_loop_333
+                      00247     
+000140 0E4E           00248     MOVLW       B'01001110'
+000142 CFE8 F02A      00249     MOVFF       WREG,SSD
+000146 EC?? F???      00250     CALL        SSD_display
+                      00251     
+00014A EC?? F???      00252     CALL        delay_loop_333
+                      00253     
+00014E EC?? F???      00254     CALL        SSD_clear
+                      00255     
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000152 EC?? F???      00256     CALL        delay_loop_333
+                      00257     
+000156 0E4E           00258     MOVLW       B'01001110'
+000158 CFE8 F02A      00259     MOVFF       WREG,SSD
+00015C EC?? F???      00260     CALL        SSD_display
+                      00261     
+000160 EC?? F???      00262     CALL        delay_loop_333
+                      00263     
+000164 EC?? F???      00264     CALL        SSD_clear
+                      00265     
+000168 A081           00266     BTFSS       PORTB,0
+00016A EF?? F???      00267     GOTO        show_d
+00016E EF?? F???      00268     GOTO        show_c_buffer
+                      00269     
+000172                00270 show_c_buffer
+000172 B081           00271     BTFSC       PORTB,0
+000174 D???           00272     BRA         show_c_buffer
+000176 EC?? F???      00273     CALL        initialize_RGBs
+00017A EF?? F???      00274     GOTO        calibration_buffer_black_l
+                      00275     
+00017E                00276 show_d
+00017E 0E3D           00277     MOVLW       B'00111101'
+000180 CFE8 F02A      00278     MOVFF       WREG,SSD
+000184 EC?? F???      00279     CALL        SSD_display
+000188 A081           00280     BTFSS       PORTB,0
+00018A EF?? F???      00281     GOTO        show_d
+00018E EF?? F???      00282     GOTO        show_d_transition
+                      00283     
+000192                00284 show_d_transition
+000192 EC?? F???      00285     CALL        delay_loop_333
+                      00286     
+000196 EC?? F???      00287     CALL        SSD_clear
+                      00288     
+00019A EC?? F???      00289     CALL        delay_loop_333
+                      00290     
+00019E 0E3D           00291     MOVLW       B'00111101'
+0001A0 CFE8 F02A      00292     MOVFF       WREG,SSD
+0001A4 EC?? F???      00293     CALL        SSD_display
+                      00294     
+0001A8 EC?? F???      00295     CALL        delay_loop_333
+                      00296     
+0001AC EC?? F???      00297     CALL        SSD_clear
+                      00298     
+0001B0 EC?? F???      00299     CALL        delay_loop_333
+                      00300     
+0001B4 0E3D           00301     MOVLW       B'00111101'
+0001B6 CFE8 F02A      00302     MOVFF       WREG,SSD
+0001BA EC?? F???      00303     CALL        SSD_display
+                      00304     
+0001BE EC?? F???      00305     CALL        delay_loop_333
+                      00306     
+0001C2 EC?? F???      00307     CALL        SSD_clear
+                      00308     
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0001C6 EC?? F???      00309     CALL        delay_loop_333
+                      00310     
+0001CA 0E3D           00311     MOVLW       B'00111101'
+0001CC CFE8 F02A      00312     MOVFF       WREG,SSD
+0001D0 EC?? F???      00313     CALL        SSD_display
+                      00314     
+0001D4 EC?? F???      00315     CALL        delay_loop_333
+                      00316     
+0001D8 EC?? F???      00317     CALL        SSD_clear
+                      00318     
+0001DC EC?? F???      00319     CALL        delay_loop_333
+                      00320     
+0001E0 0E3D           00321     MOVLW       B'00111101'
+0001E2 CFE8 F02A      00322     MOVFF       WREG,SSD
+0001E6 EC?? F???      00323     CALL        SSD_display
+                      00324     
+0001EA EC?? F???      00325     CALL        delay_loop_333
+                      00326     
+0001EE EC?? F???      00327     CALL        SSD_clear
+                      00328     
+0001F2 A081           00329     BTFSS       PORTB,0
+0001F4 EF?? F???      00330     GOTO        show_n
+0001F8 EF?? F???      00331     GOTO        show_d_buffer
+                      00332     
+0001FC                00333 show_d_buffer
+0001FC B081           00334     BTFSC       PORTB,0
+0001FE D???           00335     BRA         show_d_buffer
+000200 EF?? F???      00336     GOTO        detect_black_l
+                      00337     
+000204                00338 show_n
+000204 0E76           00339     MOVLW       B'01110110'
+000206 CFE8 F02A      00340     MOVFF       WREG,SSD
+00020A EC?? F???      00341     CALL        SSD_display
+00020E A081           00342     BTFSS       PORTB,0
+000210 EF?? F???      00343     GOTO        show_n
+000214 EF?? F???      00344     GOTO        show_n_transition
+                      00345     
+000218                00346 show_n_transition
+000218 EC?? F???      00347     CALL        delay_loop_333
+                      00348     
+00021C EC?? F???      00349     CALL        SSD_clear
+                      00350     
+000220 EC?? F???      00351     CALL        delay_loop_333
+                      00352     
+000224 0E76           00353     MOVLW       B'01110110'
+000226 CFE8 F02A      00354     MOVFF       WREG,SSD
+00022A EC?? F???      00355     CALL        SSD_display
+                      00356     
+00022E EC?? F???      00357     CALL        delay_loop_333
+                      00358     
+000232 EC?? F???      00359     CALL        SSD_clear
+                      00360     
+000236 EC?? F???      00361     CALL        delay_loop_333
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00362     
+00023A 0E76           00363     MOVLW       B'01110110'
+00023C CFE8 F02A      00364     MOVFF       WREG,SSD
+000240 EC?? F???      00365     CALL        SSD_display
+                      00366     
+000244 EC?? F???      00367     CALL        delay_loop_333
+                      00368     
+000248 EC?? F???      00369     CALL        SSD_clear
+                      00370     
+00024C EC?? F???      00371     CALL        delay_loop_333
+                      00372     
+000250 0E76           00373     MOVLW       B'01110110'
+000252 CFE8 F02A      00374     MOVFF       WREG,SSD
+000256 EC?? F???      00375     CALL        SSD_display
+                      00376     
+00025A EC?? F???      00377     CALL        delay_loop_333
+                      00378     
+00025E EC?? F???      00379     CALL        SSD_clear
+                      00380     
+000262 EC?? F???      00381     CALL        delay_loop_333
+                      00382     
+000266 0E76           00383     MOVLW       B'01110110'
+000268 CFE8 F02A      00384     MOVFF       WREG,SSD
+00026C EC?? F???      00385     CALL        SSD_display
+                      00386     
+000270 EC?? F???      00387     CALL        delay_loop_333
+                      00388     
+000274 EC?? F???      00389     CALL        SSD_clear
+                      00390     
+000278 A081           00391     BTFSS       PORTB,0
+00027A EF?? F???      00392     GOTO        show_c
+00027E EF?? F???      00393     GOTO        show_n_buffer
+                      00394     
+000282                00395 show_n_buffer
+000282 B081           00396     BTFSC       PORTB,0
+000284 D???           00397     BRA         show_n_buffer
+000286 EF?? F???      00398     GOTO        nav_mode
+                      00399  ;</editor-fold>
+                      00400 ;========== Calibration ==========
+                      00401 ;<editor-fold defaultstate="collapsed" desc="Calibration Sequence">
+                      00402 
+00028A                00403 calibration_buffer_black_l
+00028A EC?? F???      00404     CALL        show_black_l
+00028E A081           00405     BTFSS       PORTB,0
+000290 EF?? F???      00406     GOTO        calibration_buffer_black_l
+000294 EF?? F???      00407     GOTO        cal_black_l
+                      00408     
+                      00409 
+000298                00410 cal_black_l
+000298 EC?? F???      00411     CALL        clear_RGB_l
+00029C EC?? F???      00412     CALL        delay_loop_333
+0002A0 EC?? F???      00413     CALL        ADCpoll_l
+                      00414     ;GOTO       cal_black_m         ;uncomment and break for adc test
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0002A4 C025 FFE8      00415     MOVFF       ADC_result_l,WREG
+0002A8 0F05           00416     ADDLW       D'5'
+0002AA CFE8 F02D      00417     MOVFF       WREG,black_h_l
+0002AE 6A25           00418     CLRF        ADC_result_l
+0002B0 EC?? F???      00419     CALL        show_black_l
+0002B4 EC?? F???      00420     CALL        delay_loop_333
+0002B8 EC?? F???      00421     CALL        clear_RGB_l
+0002BC EC?? F???      00422     CALL        delay_loop_333
+0002C0 EC?? F???      00423     CALL        show_black_l
+0002C4 EC?? F???      00424     CALL        delay_loop_333
+0002C8 EC?? F???      00425     CALL        clear_RGB_l
+0002CC EC?? F???      00426     CALL        delay_loop_333
+0002D0 EC?? F???      00427     CALL        show_black_l
+0002D4 EC?? F???      00428     CALL        delay_loop_333
+0002D8 EC?? F???      00429     CALL        clear_RGB_l
+0002DC EC?? F???      00430     CALL        delay_loop_333
+0002E0 EF?? F???      00431     GOTO        calibration_buffer_blue_l
+                      00432     
+0002E4                00433 calibration_buffer_blue_l
+0002E4 EC?? F???      00434     CALL        show_blue_l
+0002E8 A081           00435     BTFSS       PORTB,0
+0002EA EF?? F???      00436     GOTO        calibration_buffer_blue_l
+0002EE EF?? F???      00437     GOTO        cal_blue_l
+                      00438     
+0002F2                00439 cal_blue_l
+0002F2 EC?? F???      00440     CALL        clear_RGB_l
+0002F6 EC?? F???      00441     CALL        delay_loop_333
+0002FA EC?? F???      00442     CALL        ADCpoll_l
+0002FE C025 FFE8      00443     MOVFF       ADC_result_l,WREG
+000302 0F05           00444     ADDLW       D'5'
+000304 CFE8 F02E      00445     MOVFF       WREG,blue_h_l
+000308 6A25           00446     CLRF        ADC_result_l
+00030A EC?? F???      00447     CALL        show_blue_l
+00030E EC?? F???      00448     CALL        delay_loop_333
+000312 EC?? F???      00449     CALL        clear_RGB_l
+000316 EC?? F???      00450     CALL        delay_loop_333
+00031A EC?? F???      00451     CALL        show_blue_l
+00031E EC?? F???      00452     CALL        delay_loop_333
+000322 EC?? F???      00453     CALL        clear_RGB_l
+000326 EC?? F???      00454     CALL        delay_loop_333
+00032A EC?? F???      00455     CALL        show_blue_l
+00032E EC?? F???      00456     CALL        delay_loop_333
+000332 EC?? F???      00457     CALL        clear_RGB_l
+000336 EC?? F???      00458     CALL        delay_loop_333
+00033A EF?? F???      00459     GOTO        calibration_buffer_green_l
+                      00460     
+00033E                00461 calibration_buffer_green_l
+00033E EC?? F???      00462     CALL        show_green_l
+000342 A081           00463     BTFSS       PORTB,0
+000344 EF?? F???      00464     GOTO        calibration_buffer_green_l
+000348 EF?? F???      00465     GOTO        cal_green_l
+                      00466     
+00034C                00467 cal_green_l
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00034C EC?? F???      00468     CALL        clear_RGB_l
+000350 EC?? F???      00469     CALL        delay_loop_333
+000354 EC?? F???      00470     CALL        ADCpoll_l
+000358 C025 FFE8      00471     MOVFF       ADC_result_l,WREG
+00035C 0F05           00472     ADDLW       D'5'
+00035E CFE8 F02F      00473     MOVFF       WREG,green_h_l
+000362 6A25           00474     CLRF        ADC_result_l
+000364 EC?? F???      00475     CALL        show_green_l
+000368 EC?? F???      00476     CALL        delay_loop_333
+00036C EC?? F???      00477     CALL        clear_RGB_l
+000370 EC?? F???      00478     CALL        delay_loop_333
+000374 EC?? F???      00479     CALL        show_green_l
+000378 EC?? F???      00480     CALL        delay_loop_333
+00037C EC?? F???      00481     CALL        clear_RGB_l
+000380 EC?? F???      00482     CALL        delay_loop_333
+000384 EC?? F???      00483     CALL        show_green_l
+000388 EC?? F???      00484     CALL        delay_loop_333
+00038C EC?? F???      00485     CALL        clear_RGB_l
+000390 EC?? F???      00486     CALL        delay_loop_333
+000394 EF?? F???      00487     GOTO        calibration_buffer_red_l
+                      00488     
+000398                00489 calibration_buffer_red_l
+000398 EC?? F???      00490     CALL        show_red_l
+00039C A081           00491     BTFSS       PORTB,0
+00039E EF?? F???      00492     GOTO        calibration_buffer_red_l
+0003A2 EF?? F???      00493     GOTO        cal_red_l
+                      00494     
+0003A6                00495 cal_red_l
+0003A6 EC?? F???      00496     CALL        clear_RGB_l
+0003AA EC?? F???      00497     CALL        delay_loop_333
+0003AE EC?? F???      00498     CALL        ADCpoll_l
+0003B2 C025 FFE8      00499     MOVFF       ADC_result_l,WREG
+0003B6 0F05           00500     ADDLW       D'5'
+0003B8 CFE8 F030      00501     MOVFF       WREG,red_h_l
+0003BC 6A25           00502     CLRF        ADC_result_l
+0003BE EC?? F???      00503     CALL        show_red_l
+0003C2 EC?? F???      00504     CALL        delay_loop_333
+0003C6 EC?? F???      00505     CALL        clear_RGB_l
+0003CA EC?? F???      00506     CALL        delay_loop_333
+0003CE EC?? F???      00507     CALL        show_red_l
+0003D2 EC?? F???      00508     CALL        delay_loop_333
+0003D6 EC?? F???      00509     CALL        clear_RGB_l
+0003DA EC?? F???      00510     CALL        delay_loop_333
+0003DE EC?? F???      00511     CALL        show_red_l
+0003E2 EC?? F???      00512     CALL        delay_loop_333
+0003E6 EC?? F???      00513     CALL        clear_RGB_l
+0003EA EC?? F???      00514     CALL        delay_loop_333
+0003EE EF?? F???      00515     GOTO        calibration_buffer_black_m
+                      00516     
+0003F2                00517 calibration_buffer_black_m
+0003F2 EC?? F???      00518     CALL        show_black_m
+0003F6 A081           00519     BTFSS       PORTB,0
+0003F8 EF?? F???      00520     GOTO        calibration_buffer_black_m
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0003FC EF?? F???      00521     GOTO        cal_black_m
+                      00522     
+000400                00523 cal_black_m
+000400 EC?? F???      00524     CALL        clear_RGB_m
+000404 EC?? F???      00525     CALL        delay_loop_333
+000408 EC?? F???      00526     CALL        ADCpoll_m
+                      00527     ;GOTO       cal_black_r             ;uncomment and break for adc test
+00040C C027 FFE8      00528     MOVFF       ADC_result_m,WREG
+000410 0F05           00529     ADDLW       D'5'
+000412 CFE8 F031      00530     MOVFF       WREG,black_h_m
+000416 6A27           00531     CLRF        ADC_result_m
+000418 EC?? F???      00532     CALL        show_black_m
+00041C EC?? F???      00533     CALL        delay_loop_333
+000420 EC?? F???      00534     CALL        clear_RGB_m
+000424 EC?? F???      00535     CALL        delay_loop_333
+000428 EC?? F???      00536     CALL        show_black_m
+00042C EC?? F???      00537     CALL        delay_loop_333
+000430 EC?? F???      00538     CALL        clear_RGB_m
+000434 EC?? F???      00539     CALL        delay_loop_333
+000438 EC?? F???      00540     CALL        show_black_m
+00043C EC?? F???      00541     CALL        delay_loop_333
+000440 EC?? F???      00542     CALL        clear_RGB_m
+000444 EC?? F???      00543     CALL        delay_loop_333
+000448 EF?? F???      00544     GOTO        calibration_buffer_blue_m
+                      00545     
+00044C                00546 calibration_buffer_blue_m
+00044C EC?? F???      00547     CALL        show_blue_m
+000450 A081           00548     BTFSS       PORTB,0
+000452 EF?? F???      00549     GOTO        calibration_buffer_blue_m
+000456 EF?? F???      00550     GOTO        cal_blue_m
+                      00551     
+00045A                00552 cal_blue_m
+00045A EC?? F???      00553     CALL        clear_RGB_m
+00045E EC?? F???      00554     CALL        delay_loop_333
+000462 EC?? F???      00555     CALL        ADCpoll_m
+000466 C027 FFE8      00556     MOVFF       ADC_result_m,WREG
+00046A 0F05           00557     ADDLW       D'5'
+00046C CFE8 F032      00558     MOVFF       WREG,blue_h_m
+000470 6A27           00559     CLRF        ADC_result_m
+000472 EC?? F???      00560     CALL        show_blue_m
+000476 EC?? F???      00561     CALL        delay_loop_333
+00047A EC?? F???      00562     CALL        clear_RGB_m
+00047E EC?? F???      00563     CALL        delay_loop_333
+000482 EC?? F???      00564     CALL        show_blue_m
+000486 EC?? F???      00565     CALL        delay_loop_333
+00048A EC?? F???      00566     CALL        clear_RGB_m
+00048E EC?? F???      00567     CALL        delay_loop_333
+000492 EC?? F???      00568     CALL        show_blue_m
+000496 EC?? F???      00569     CALL        delay_loop_333
+00049A EC?? F???      00570     CALL        clear_RGB_m
+00049E EC?? F???      00571     CALL        delay_loop_333
+0004A2 EF?? F???      00572     GOTO        calibration_buffer_green_m
+                      00573     
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0004A6                00574 calibration_buffer_green_m
+0004A6 EC?? F???      00575     CALL        show_green_m
+0004AA A081           00576     BTFSS       PORTB,0
+0004AC EF?? F???      00577     GOTO        calibration_buffer_green_m
+0004B0 EF?? F???      00578     GOTO        cal_green_m
+                      00579     
+0004B4                00580 cal_green_m
+0004B4 EC?? F???      00581     CALL        clear_RGB_m
+0004B8 EC?? F???      00582     CALL        delay_loop_333
+0004BC EC?? F???      00583     CALL        ADCpoll_m
+0004C0 C027 FFE8      00584     MOVFF       ADC_result_m,WREG
+0004C4 0F05           00585     ADDLW       D'5'
+0004C6 CFE8 F033      00586     MOVFF       WREG,green_h_m
+0004CA 6A27           00587     CLRF        ADC_result_m
+0004CC EC?? F???      00588     CALL        show_green_m
+0004D0 EC?? F???      00589     CALL        delay_loop_333
+0004D4 EC?? F???      00590     CALL        clear_RGB_m
+0004D8 EC?? F???      00591     CALL        delay_loop_333
+0004DC EC?? F???      00592     CALL        show_green_m
+0004E0 EC?? F???      00593     CALL        delay_loop_333
+0004E4 EC?? F???      00594     CALL        clear_RGB_m
+0004E8 EC?? F???      00595     CALL        delay_loop_333
+0004EC EC?? F???      00596     CALL        show_green_m
+0004F0 EC?? F???      00597     CALL        delay_loop_333
+0004F4 EC?? F???      00598     CALL        clear_RGB_m
+0004F8 EC?? F???      00599     CALL        delay_loop_333
+0004FC EF?? F???      00600     GOTO        calibration_buffer_red_m
+                      00601     
+000500                00602 calibration_buffer_red_m
+000500 EC?? F???      00603     CALL        show_red_m
+000504 A081           00604     BTFSS       PORTB,0
+000506 EF?? F???      00605     GOTO        calibration_buffer_red_m
+00050A EF?? F???      00606     GOTO        cal_red_m
+                      00607     
+00050E                00608 cal_red_m
+00050E EC?? F???      00609     CALL        clear_RGB_m
+000512 EC?? F???      00610     CALL        delay_loop_333
+000516 EC?? F???      00611     CALL        ADCpoll_m
+00051A C027 FFE8      00612     MOVFF       ADC_result_m,WREG
+00051E 0F05           00613     ADDLW       D'5'
+000520 CFE8 F034      00614     MOVFF       WREG,red_h_m
+000524 6A27           00615     CLRF        ADC_result_m
+000526 EC?? F???      00616     CALL        show_red_m
+00052A EC?? F???      00617     CALL        delay_loop_333
+00052E EC?? F???      00618     CALL        clear_RGB_m
+000532 EC?? F???      00619     CALL        delay_loop_333
+000536 EC?? F???      00620     CALL        show_red_m
+00053A EC?? F???      00621     CALL        delay_loop_333
+00053E EC?? F???      00622     CALL        clear_RGB_m
+000542 EC?? F???      00623     CALL        delay_loop_333
+000546 EC?? F???      00624     CALL        show_red_m
+00054A EC?? F???      00625     CALL        delay_loop_333
+00054E EC?? F???      00626     CALL        clear_RGB_m
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000552 EC?? F???      00627     CALL        delay_loop_333
+000556 EF?? F???      00628     GOTO        calibration_buffer_black_r
+                      00629     
+00055A                00630 calibration_buffer_black_r
+00055A EC?? F???      00631     CALL        show_black_r
+00055E A081           00632     BTFSS       PORTB,0
+000560 EF?? F???      00633     GOTO        calibration_buffer_black_r
+000564 EF?? F???      00634     GOTO        cal_black_r
+                      00635     
+000568                00636 cal_black_r
+000568 EC?? F???      00637     CALL        clear_RGB_r
+00056C EC?? F???      00638     CALL        delay_loop_333
+000570 EC?? F???      00639     CALL        ADCpoll_r
+                      00640     ;GOTO       cal_black_l             ;uncomment and break for adc test
+000574 C026 FFE8      00641     MOVFF       ADC_result_r,WREG
+000578 0F05           00642     ADDLW       D'5'
+00057A CFE8 F035      00643     MOVFF       WREG,black_h_r
+00057E 6A26           00644     CLRF        ADC_result_r
+000580 EC?? F???      00645     CALL        show_black_r
+000584 EC?? F???      00646     CALL        delay_loop_333
+000588 EC?? F???      00647     CALL        clear_RGB_r
+00058C EC?? F???      00648     CALL        delay_loop_333
+000590 EC?? F???      00649     CALL        show_black_r
+000594 EC?? F???      00650     CALL        delay_loop_333
+000598 EC?? F???      00651     CALL        clear_RGB_r
+00059C EC?? F???      00652     CALL        delay_loop_333
+0005A0 EC?? F???      00653     CALL        show_black_r
+0005A4 EC?? F???      00654     CALL        delay_loop_333
+0005A8 EC?? F???      00655     CALL        clear_RGB_r
+0005AC EC?? F???      00656     CALL        delay_loop_333
+0005B0 EF?? F???      00657     GOTO        calibration_buffer_blue_r
+                      00658     
+0005B4                00659 calibration_buffer_blue_r
+0005B4 EC?? F???      00660     CALL        show_blue_r
+0005B8 A081           00661     BTFSS       PORTB,0
+0005BA EF?? F???      00662     GOTO        calibration_buffer_blue_r
+0005BE EF?? F???      00663     GOTO        cal_blue_r
+                      00664     
+0005C2                00665 cal_blue_r
+0005C2 EC?? F???      00666     CALL        clear_RGB_r
+0005C6 EC?? F???      00667     CALL        delay_loop_333
+0005CA EC?? F???      00668     CALL        ADCpoll_r
+0005CE C026 FFE8      00669     MOVFF       ADC_result_r,WREG
+0005D2 0F05           00670     ADDLW       D'5'
+0005D4 CFE8 F036      00671     MOVFF       WREG,blue_h_r
+0005D8 6A26           00672     CLRF        ADC_result_r
+0005DA EC?? F???      00673     CALL        show_blue_r
+0005DE EC?? F???      00674     CALL        delay_loop_333
+0005E2 EC?? F???      00675     CALL        clear_RGB_r
+0005E6 EC?? F???      00676     CALL        delay_loop_333
+0005EA EC?? F???      00677     CALL        show_blue_r
+0005EE EC?? F???      00678     CALL        delay_loop_333
+0005F2 EC?? F???      00679     CALL        clear_RGB_r
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0005F6 EC?? F???      00680     CALL        delay_loop_333
+0005FA EC?? F???      00681     CALL        show_blue_r
+0005FE EC?? F???      00682     CALL        delay_loop_333
+000602 EC?? F???      00683     CALL        clear_RGB_r
+000606 EC?? F???      00684     CALL        delay_loop_333
+00060A EF?? F???      00685     GOTO        calibration_buffer_green_r
+                      00686     
+00060E                00687 calibration_buffer_green_r
+00060E EC?? F???      00688     CALL        show_green_r
+000612 A081           00689     BTFSS       PORTB,0
+000614 EF?? F???      00690     GOTO        calibration_buffer_green_r
+000618 EF?? F???      00691     GOTO        cal_green_r
+                      00692     
+00061C                00693 cal_green_r
+00061C EC?? F???      00694     CALL        clear_RGB_r
+000620 EC?? F???      00695     CALL        delay_loop_333
+000624 EC?? F???      00696     CALL        ADCpoll_r
+000628 C026 FFE8      00697     MOVFF       ADC_result_r,WREG
+00062C 0F05           00698     ADDLW       D'5'
+00062E CFE8 F037      00699     MOVFF       WREG,green_h_r
+000632 6A26           00700     CLRF        ADC_result_r
+000634 EC?? F???      00701     CALL        show_green_r
+000638 EC?? F???      00702     CALL        delay_loop_333
+00063C EC?? F???      00703     CALL        clear_RGB_r
+000640 EC?? F???      00704     CALL        delay_loop_333
+000644 EC?? F???      00705     CALL        show_green_r
+000648 EC?? F???      00706     CALL        delay_loop_333
+00064C EC?? F???      00707     CALL        clear_RGB_r
+000650 EC?? F???      00708     CALL        delay_loop_333
+000654 EC?? F???      00709     CALL        show_green_r
+000658 EC?? F???      00710     CALL        delay_loop_333
+00065C EC?? F???      00711     CALL        clear_RGB_r
+000660 EC?? F???      00712     CALL        delay_loop_333
+000664 EF?? F???      00713     GOTO        calibration_buffer_red_r
+                      00714     
+000668                00715 calibration_buffer_red_r
+000668 EC?? F???      00716     CALL        show_red_r
+00066C A081           00717     BTFSS       PORTB,0
+00066E EF?? F???      00718     GOTO        calibration_buffer_red_r
+000672 EF?? F???      00719     GOTO        cal_red_r
+                      00720     
+000676                00721 cal_red_r
+000676 EC?? F???      00722     CALL        clear_RGB_r
+00067A EC?? F???      00723     CALL        delay_loop_333
+00067E EC?? F???      00724     CALL        ADCpoll_r
+000682 C026 FFE8      00725     MOVFF       ADC_result_r,WREG
+000686 0F05           00726     ADDLW       D'5'
+000688 CFE8 F038      00727     MOVFF       WREG,red_h_r
+00068C 6A26           00728     CLRF        ADC_result_r
+00068E EC?? F???      00729     CALL        show_red_r
+000692 EC?? F???      00730     CALL        delay_loop_333
+000696 EC?? F???      00731     CALL        clear_RGB_r
+00069A EC?? F???      00732     CALL        delay_loop_333
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00069E EC?? F???      00733     CALL        show_red_r
+0006A2 EC?? F???      00734     CALL        delay_loop_333
+0006A6 EC?? F???      00735     CALL        clear_RGB_r
+0006AA EC?? F???      00736     CALL        delay_loop_333
+0006AE EC?? F???      00737     CALL        show_red_r
+0006B2 EC?? F???      00738     CALL        delay_loop_333
+0006B6 EC?? F???      00739     CALL        clear_RGB_r
+0006BA EC?? F???      00740     CALL        delay_loop_333
+0006BE EF?? F???      00741     GOTO        mode
+                      00742 ;</editor-fold>
+                      00743 ;========== Colour Detector ==========
+                      00744 ;<editor-fold defaultstate="collapsed" desc="Colour Detector">
+0006C2                00745 detect_black_l
+0006C2 EC?? F???      00746     CALL        initialize_RGBs
+0006C6 EC?? F???      00747     CALL        ADCpoll_l
+0006CA 6AE8           00748     CLRF        WREG
+0006CC C02D FFE8      00749     MOVFF       black_h_l,WREG
+0006D0 6025           00750     CPFSLT      ADC_result_l
+0006D2 EF?? F???      00751     GOTO        detect_blue_l
+0006D6 EC?? F???      00752     CALL        show_black_l
+0006DA EF?? F???      00753     GOTO        detect_black_m
+                      00754     
+0006DE                00755 detect_blue_l
+0006DE 6AE8           00756     CLRF        WREG
+0006E0 C02E FFE8      00757     MOVFF       blue_h_l,WREG
+0006E4 6025           00758     CPFSLT      ADC_result_l
+0006E6 EF?? F???      00759     GOTO        detect_green_l
+0006EA EC?? F???      00760     CALL        show_blue_l
+0006EE EF?? F???      00761     GOTO        detect_black_m
+                      00762     
+0006F2                00763 detect_green_l
+0006F2 6AE8           00764     CLRF        WREG
+0006F4 C02F FFE8      00765     MOVFF       green_h_l,WREG
+0006F8 6025           00766     CPFSLT      ADC_result_l
+0006FA EF?? F???      00767     GOTO        detect_red_l
+0006FE EC?? F???      00768     CALL        show_green_l
+000702 EF?? F???      00769     GOTO        detect_black_m
+                      00770     
+000706                00771 detect_red_l
+000706 6AE8           00772     CLRF        WREG
+000708 C030 FFE8      00773     MOVFF       red_h_l,WREG
+00070C 6025           00774     CPFSLT      ADC_result_l
+00070E EF?? F???      00775     GOTO        detect_white_l
+000712 EC?? F???      00776     CALL        show_red_l
+000716 EF?? F???      00777     GOTO        detect_black_m
+                      00778     
+00071A                00779 detect_white_l
+00071A EC?? F???      00780     CALL        show_white_l
+00071E EF?? F???      00781     GOTO        detect_black_m
+                      00782     
+000722                00783 detect_black_m
+000722 EC?? F???      00784     CALL        ADCpoll_m
+000726 6AE8           00785     CLRF        WREG
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000728 C031 FFE8      00786     MOVFF       black_h_m,WREG
+00072C 6027           00787     CPFSLT      ADC_result_m
+00072E EF?? F???      00788     GOTO        detect_blue_m
+000732 EC?? F???      00789     CALL        show_black_m
+000736 EF?? F???      00790     GOTO        detect_black_r
+                      00791     
+00073A                00792 detect_blue_m
+00073A 6AE8           00793     CLRF        WREG
+00073C C032 FFE8      00794     MOVFF       blue_h_m,WREG
+000740 6027           00795     CPFSLT      ADC_result_m
+000742 EF?? F???      00796     GOTO        detect_green_m
+000746 EC?? F???      00797     CALL        show_blue_m
+00074A EF?? F???      00798     GOTO        detect_black_r
+                      00799     
+00074E                00800 detect_green_m
+00074E 6AE8           00801     CLRF        WREG
+000750 C033 FFE8      00802     MOVFF       green_h_m,WREG
+000754 6027           00803     CPFSLT      ADC_result_m
+000756 EF?? F???      00804     GOTO        detect_red_m
+00075A EC?? F???      00805     CALL        show_green_m
+00075E EF?? F???      00806     GOTO        detect_black_r
+                      00807     
+000762                00808 detect_red_m
+000762 6AE8           00809     CLRF        WREG
+000764 C034 FFE8      00810     MOVFF       red_h_m,WREG
+000768 6027           00811     CPFSLT      ADC_result_m
+00076A EF?? F???      00812     GOTO        detect_white_m
+00076E EC?? F???      00813     CALL        show_red_m
+000772 EF?? F???      00814     GOTO        detect_black_r
+                      00815     
+000776                00816 detect_white_m
+000776 EC?? F???      00817     CALL        show_white_m
+00077A EF?? F???      00818     GOTO        detect_black_r
+                      00819     
+00077E                00820 detect_black_r
+00077E EC?? F???      00821     CALL        ADCpoll_r
+000782 6AE8           00822     CLRF        WREG
+000784 C035 FFE8      00823     MOVFF       black_h_r,WREG
+000788 6026           00824     CPFSLT      ADC_result_r
+00078A EF?? F???      00825     GOTO        detect_blue_r
+00078E EC?? F???      00826     CALL        show_black_r
+000792 EF?? F???      00827     GOTO        colour_detector_buffer
+                      00828     
+000796                00829 detect_blue_r
+000796 6AE8           00830     CLRF        WREG
+000798 C036 FFE8      00831     MOVFF       blue_h_r,WREG
+00079C 6026           00832     CPFSLT      ADC_result_r
+00079E EF?? F???      00833     GOTO        detect_green_r
+0007A2 EC?? F???      00834     CALL        show_blue_r
+0007A6 EF?? F???      00835     GOTO        colour_detector_buffer
+                      00836     
+0007AA                00837 detect_green_r
+0007AA 6AE8           00838     CLRF        WREG
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 17
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0007AC C037 FFE8      00839     MOVFF       green_h_r,WREG
+0007B0 6026           00840     CPFSLT      ADC_result_r
+0007B2 EF?? F???      00841     GOTO        detect_red_r
+0007B6 EC?? F???      00842     CALL        show_green_r
+0007BA EF?? F???      00843     GOTO        colour_detector_buffer
+                      00844     
+0007BE                00845 detect_red_r
+0007BE 6AE8           00846     CLRF        WREG
+0007C0 C038 FFE8      00847     MOVFF       red_h_r,WREG
+0007C4 6026           00848     CPFSLT      ADC_result_r
+0007C6 EF?? F???      00849     GOTO        detect_white_r
+0007CA EC?? F???      00850     CALL        show_red_r
+0007CE EF?? F???      00851     GOTO        colour_detector_buffer
+                      00852     
+0007D2                00853 detect_white_r
+0007D2 EC?? F???      00854     CALL        show_white_r
+0007D6 EF?? F???      00855     GOTO        colour_detector_buffer
+                      00856     
+0007DA                00857 colour_detector_buffer
+0007DA A081           00858     BTFSS       PORTB,0
+0007DC EF?? F???      00859     GOTO        detect_black_l
+0007E0 EF?? F???      00860     GOTO        mode
+                      00861 ;</editor-fold>
+                      00862 ;========== LLI ==========
+                      00863 ;<editor-fold defaultstate="collapsed" desc="Navigation Menu">
+                      00864 
+0007E4                00865 nav_mode
+0007E4 010F           00866     MOVLB       0xF
+                      00867     ;Initialize PORTB
+0007E6 6A81           00868     CLRF        PORTB
+0007E8 6A8A           00869     CLRF        LATB
+0007EA 6B39           00870     CLRF        ANSELB
+0007EC 6A93           00871     CLRF        TRISB
+                      00872     
+                      00873    ;Disable Interrupts
+0007EE 6AF2           00874     CLRF        INTCON  
+0007F0 98F2           00875     BCF         INTCON,INT0IE
+0007F2 9EF2           00876     BCF         INTCON,GIE
+                      00877     
+                      00878     ;Set up port b for digital inputs
+0007F4 8093           00879     BSF         TRISB,0
+0007F6 9139           00880     BCF         ANSELB,0
+0007F8 0100           00881     MOVLB       0x00
+                      00882     
+0007FA                00883 show_black
+0007FA 0E76           00884     MOVLW       B'01110110'
+0007FC CFE8 F02A      00885     MOVFF       WREG,SSD
+000800 EC?? F???      00886     CALL        SSD_display
+000804 0000           00887     NOP
+000806 EC?? F???      00888     CALL        delay_loop_333
+00080A A081           00889     BTFSS       PORTB,0
+00080C EF?? F???      00890     GOTO        show_black
+000810 EF?? F???      00891     GOTO        show_black_transition
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00892     
+000814                00893 show_black_transition
+000814 EC?? F???      00894     CALL        delay_loop_333
+                      00895     
+000818 EC?? F???      00896     CALL        SSD_clear
+                      00897     
+00081C EC?? F???      00898     CALL        delay_loop_333
+                      00899     
+000820 0E76           00900     MOVLW       B'01110110'
+000822 CFE8 F02A      00901     MOVFF       WREG,SSD
+000826 EC?? F???      00902     CALL        SSD_display
+                      00903     
+00082A EC?? F???      00904     CALL        delay_loop_333
+                      00905     
+00082E EC?? F???      00906     CALL        SSD_clear
+                      00907     
+000832 EC?? F???      00908     CALL        delay_loop_333
+                      00909     
+000836 0E76           00910     MOVLW       B'01110110'
+000838 CFE8 F02A      00911     MOVFF       WREG,SSD
+00083C EC?? F???      00912     CALL        SSD_display
+                      00913     
+000840 EC?? F???      00914     CALL        delay_loop_333
+                      00915     
+000844 EC?? F???      00916     CALL        SSD_clear
+                      00917     
+000848 EC?? F???      00918     CALL        delay_loop_333
+                      00919     
+00084C 0E76           00920     MOVLW       B'01110110'
+00084E CFE8 F02A      00921     MOVFF       WREG,SSD
+000852 EC?? F???      00922     CALL        SSD_display
+                      00923     
+000856 EC?? F???      00924     CALL        delay_loop_333
+                      00925     
+00085A EC?? F???      00926     CALL        SSD_clear
+                      00927     
+00085E EC?? F???      00928     CALL        delay_loop_333
+                      00929     
+000862 0E76           00930     MOVLW       B'01110110'
+000864 CFE8 F02A      00931     MOVFF       WREG,SSD
+000868 EC?? F???      00932     CALL        SSD_display
+                      00933     
+00086C EC?? F???      00934     CALL        delay_loop_333
+                      00935     
+000870 EC?? F???      00936     CALL        SSD_clear
+                      00937     
+000874 A081           00938     BTFSS       PORTB,0
+000876 EF?? F???      00939     GOTO        show_blue
+00087A EF?? F???      00940     GOTO        show_black_buffer
+                      00941     
+00087E                00942 show_black_buffer
+00087E B081           00943     BTFSC       PORTB,0
+000880 D???           00944     BRA         show_black_buffer
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000882 EF?? F???      00945     GOTO        check_black_l
+                      00946     
+000886                00947 show_blue
+000886 0E7F           00948     MOVLW       B'01111111'
+000888 CFE8 F02A      00949     MOVFF       WREG,SSD
+00088C EC?? F???      00950     CALL        SSD_display
+000890 A081           00951     BTFSS       PORTB,0
+000892 EF?? F???      00952     GOTO        show_blue
+000896 EF?? F???      00953     GOTO        show_blue_transition
+                      00954     
+00089A                00955 show_blue_transition
+00089A EC?? F???      00956     CALL        delay_loop_333
+                      00957     
+00089E EC?? F???      00958     CALL        SSD_clear
+                      00959     
+0008A2 EC?? F???      00960     CALL        delay_loop_333
+                      00961     
+0008A6 0E7F           00962     MOVLW       B'01111111'
+0008A8 CFE8 F02A      00963     MOVFF       WREG,SSD
+0008AC EC?? F???      00964     CALL        SSD_display
+                      00965     
+0008B0 EC?? F???      00966     CALL        delay_loop_333
+                      00967     
+0008B4 EC?? F???      00968     CALL        SSD_clear
+                      00969     
+0008B8 0E7F           00970     MOVLW       B'01111111'
+0008BA CFE8 F02A      00971     MOVFF       WREG,SSD
+0008BE EC?? F???      00972     CALL        SSD_display
+                      00973     
+0008C2 EC?? F???      00974     CALL        delay_loop_333
+                      00975     
+0008C6 EC?? F???      00976     CALL        SSD_clear
+                      00977     
+0008CA EC?? F???      00978     CALL        delay_loop_333
+                      00979     
+0008CE 0E7F           00980     MOVLW       B'01111111'
+0008D0 CFE8 F02A      00981     MOVFF       WREG,SSD
+0008D4 EC?? F???      00982     CALL        SSD_display
+                      00983     
+0008D8 EC?? F???      00984     CALL        delay_loop_333
+                      00985     
+0008DC EC?? F???      00986     CALL        SSD_clear
+                      00987     
+0008E0 0E7F           00988     MOVLW       B'01111111'
+0008E2 CFE8 F02A      00989     MOVFF       WREG,SSD
+0008E6 EC?? F???      00990     CALL        SSD_display
+                      00991     
+0008EA EC?? F???      00992     CALL        delay_loop_333
+                      00993     
+0008EE EC?? F???      00994     CALL        SSD_clear
+                      00995     
+0008F2 A081           00996     BTFSS       PORTB,0
+0008F4 EF?? F???      00997     GOTO        show_green
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 20
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0008F8 EF?? F???      00998     GOTO        show_blue_buffer
+                      00999     
+0008FC                01000 show_blue_buffer
+0008FC B081           01001     BTFSC       PORTB,0
+0008FE D???           01002     BRA         show_blue_buffer
+000900 EF?? F???      01003     GOTO        check_blue_l
+                      01004     
+000904                01005 show_green
+000904 0E5F           01006     MOVLW       B'01011111'
+000906 CFE8 F02A      01007     MOVFF       WREG,SSD
+00090A EC?? F???      01008     CALL        SSD_display
+00090E A081           01009     BTFSS       PORTB,0
+000910 EF?? F???      01010     GOTO        show_green
+000914 EF?? F???      01011     GOTO        show_green_transition
+                      01012     
+000918                01013 show_green_transition
+000918 EC?? F???      01014     CALL        delay_loop_333
+                      01015     
+00091C EC?? F???      01016     CALL        SSD_clear
+                      01017     
+000920 EC?? F???      01018     CALL        delay_loop_333
+                      01019     
+000924 0E5F           01020     MOVLW       B'01011111'
+000926 CFE8 F02A      01021     MOVFF       WREG,SSD
+00092A EC?? F???      01022     CALL        SSD_display
+                      01023     
+00092E EC?? F???      01024     CALL        delay_loop_333
+                      01025     
+000932 EC?? F???      01026     CALL        SSD_clear
+                      01027     
+000936 0E5F           01028     MOVLW       B'01011111'
+000938 CFE8 F02A      01029     MOVFF       WREG,SSD
+00093C EC?? F???      01030     CALL        SSD_display
+                      01031     
+000940 EC?? F???      01032     CALL        delay_loop_333
+                      01033     
+000944 EC?? F???      01034     CALL        SSD_clear
+                      01035     
+000948 EC?? F???      01036     CALL        delay_loop_333
+                      01037     
+00094C 0E5F           01038     MOVLW       B'01011111'
+00094E CFE8 F02A      01039     MOVFF       WREG,SSD
+000952 EC?? F???      01040     CALL        SSD_display
+                      01041     
+000956 EC?? F???      01042     CALL        delay_loop_333
+                      01043     
+00095A EC?? F???      01044     CALL        SSD_clear
+                      01045     
+00095E 0E5F           01046     MOVLW       B'01011111'
+000960 CFE8 F02A      01047     MOVFF       WREG,SSD
+000964 EC?? F???      01048     CALL        SSD_display
+                      01049     
+000968 EC?? F???      01050     CALL        delay_loop_333
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 21
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01051     
+00096C EC?? F???      01052     CALL        SSD_clear
+                      01053     
+000970 A081           01054     BTFSS       PORTB,0
+000972 EF?? F???      01055     GOTO        show_red
+000976 EF?? F???      01056     GOTO        show_green_buffer
+                      01057     
+00097A                01058 show_green_buffer
+00097A B081           01059     BTFSC       PORTB,0
+00097C D???           01060     BRA         show_green_buffer
+00097E EF?? F???      01061     GOTO        check_green_l
+                      01062     
+000982                01063 show_red
+000982 0E77           01064     MOVLW       B'01110111'
+000984 CFE8 F02A      01065     MOVFF       WREG,SSD
+000988 EC?? F???      01066     CALL        SSD_display
+00098C A081           01067     BTFSS       PORTB,0
+00098E EF?? F???      01068     GOTO        show_red
+000992 EF?? F???      01069     GOTO        show_red_transition
+                      01070     
+000996                01071 show_red_transition
+000996 EC?? F???      01072     CALL        delay_loop_333
+                      01073     
+00099A EC?? F???      01074     CALL        SSD_clear
+                      01075     
+00099E EC?? F???      01076     CALL        delay_loop_333
+                      01077     
+0009A2 0E77           01078     MOVLW       B'01110111'
+0009A4 CFE8 F02A      01079     MOVFF       WREG,SSD
+0009A8 EC?? F???      01080     CALL        SSD_display
+                      01081     
+0009AC EC?? F???      01082     CALL        delay_loop_333
+                      01083     
+0009B0 EC?? F???      01084     CALL        SSD_clear
+                      01085     
+0009B4 0E77           01086     MOVLW       B'01110111'
+0009B6 CFE8 F02A      01087     MOVFF       WREG,SSD
+0009BA EC?? F???      01088     CALL        SSD_display
+                      01089     
+0009BE EC?? F???      01090     CALL        delay_loop_333
+                      01091     
+0009C2 EC?? F???      01092     CALL        SSD_clear
+                      01093     
+0009C6 EC?? F???      01094     CALL        delay_loop_333
+                      01095     
+0009CA 0E77           01096     MOVLW       B'01110111'
+0009CC CFE8 F02A      01097     MOVFF       WREG,SSD
+0009D0 EC?? F???      01098     CALL        SSD_display
+                      01099     
+0009D4 EC?? F???      01100     CALL        delay_loop_333
+                      01101     
+0009D8 EC?? F???      01102     CALL        SSD_clear
+                      01103     
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 22
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0009DC 0E77           01104     MOVLW       B'01110111'
+0009DE CFE8 F02A      01105     MOVFF       WREG,SSD
+0009E2 EC?? F???      01106     CALL        SSD_display
+                      01107     
+0009E6 EC?? F???      01108     CALL        delay_loop_333
+                      01109     
+0009EA EC?? F???      01110     CALL        SSD_clear
+                      01111     
+0009EE A081           01112     BTFSS       PORTB,0
+0009F0 EF?? F???      01113     GOTO        show_black
+0009F4 EF?? F???      01114     GOTO        show_red_buffer
+                      01115     
+0009F8                01116 show_red_buffer
+0009F8 B081           01117     BTFSC       PORTB,0
+0009FA D???           01118     BRA         show_red_buffer
+0009FC EF?? F???      01119     GOTO        check_red_l
+                      01120  ;</editor-fold>
+                      01121 ;<editor-fold defaultstate="collapsed" desc="Navigation State">
+                      01122   
+000A00                01123 check_black_l
+                      01124     ;Interupt ports
+000A00 8093           01125     BSF         TRISB,0
+000A02 9139           01126     BCF         ANSELB,0
+                      01127     
+                      01128     ; Initialize Interrupts
+000A04 6AF2           01129     CLRF        INTCON  
+000A06 88F2           01130     BSF         INTCON,INT0IE
+000A08 8EF2           01131     BSF         INTCON,GIE
+                      01132  
+000A0A EC?? F???      01133     CALL        ADCpoll_l
+000A0E C02D FFE8      01134     MOVFF       black_h_l,WREG
+000A12 6025           01135     CPFSLT      ADC_result_l
+000A14 EF?? F???      01136     GOTO        clear_black_l
+000A18 8439           01137     BSF         nav_reg,l
+000A1A EF?? F???      01138     GOTO        check_black_m
+                      01139     
+000A1E                01140 clear_black_l
+000A1E 9439           01141     BCF         nav_reg,l
+                      01142     
+000A20                01143 check_black_m
+000A20 EC?? F???      01144     CALL        ADCpoll_m
+000A24 C031 FFE8      01145     MOVFF       black_h_m,WREG
+000A28 6027           01146     CPFSLT      ADC_result_m
+000A2A EF?? F???      01147     GOTO        clear_black_l
+000A2E 8239           01148     BSF         nav_reg,m
+000A30 EF?? F???      01149     GOTO        check_black_r
+                      01150     
+000A34                01151 clear_black_m
+000A34 9239           01152     BCF         nav_reg,m
+                      01153     
+000A36                01154 check_black_r
+000A36 EC?? F???      01155     CALL        ADCpoll_r
+000A3A C035 FFE8      01156     MOVFF       black_h_r,WREG
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 23
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000A3E 6026           01157     CPFSLT      ADC_result_r
+000A40 EF?? F???      01158     GOTO        clear_black_r
+000A44 8039           01159     BSF         nav_reg,r
+000A46 EF?? F???      01160     GOTO        nav_black
+                      01161     
+000A4A                01162 clear_black_r
+000A4A 9039           01163     BCF         nav_reg,r
+000A4C EF?? F???      01164     GOTO        nav_black
+                      01165     
+000A50                01166 check_blue_l
+                      01167     ;Interupt ports
+000A50 8093           01168     BSF         TRISB,0
+000A52 9139           01169     BCF         ANSELB,0
+                      01170     
+                      01171     ; Initialize Interrupts
+000A54 6AF2           01172     CLRF        INTCON  
+000A56 88F2           01173     BSF         INTCON,INT0IE
+000A58 8EF2           01174     BSF         INTCON,GIE
+                      01175     
+000A5A EC?? F???      01176     CALL        ADCpoll_l
+000A5E C02E FFE8      01177     MOVFF       blue_h_l,WREG
+000A62 6025           01178     CPFSLT      ADC_result_l
+000A64 EF?? F???      01179     GOTO        clear_blue_l
+000A68 C02D FFE8      01180     MOVFF       black_h_l,WREG
+000A6C 6425           01181     CPFSGT      ADC_result_l
+000A6E EF?? F???      01182     GOTO        clear_blue_l
+000A72 8439           01183     BSF         nav_reg,l
+000A74 EF?? F???      01184     GOTO        check_blue_m
+                      01185     
+000A78                01186 clear_blue_l
+000A78 9439           01187     BCF         nav_reg,l
+                      01188     
+000A7A                01189 check_blue_m
+000A7A EC?? F???      01190     CALL        ADCpoll_m
+000A7E C032 FFE8      01191     MOVFF       blue_h_m,WREG
+000A82 6027           01192     CPFSLT      ADC_result_m
+000A84 EF?? F???      01193     GOTO        clear_blue_m
+000A88 C031 FFE8      01194     MOVFF       black_h_m,WREG
+000A8C 6427           01195     CPFSGT      ADC_result_m
+000A8E EF?? F???      01196     GOTO        clear_blue_m
+000A92 8239           01197     BSF         nav_reg,m
+000A94 EF?? F???      01198     GOTO        check_blue_r
+                      01199     
+000A98                01200 clear_blue_m
+000A98 9239           01201     BCF         nav_reg,m
+                      01202     
+000A9A                01203 check_blue_r
+000A9A EC?? F???      01204     CALL        ADCpoll_r
+000A9E C036 FFE8      01205     MOVFF       blue_h_r,WREG
+000AA2 6026           01206     CPFSLT      ADC_result_r
+000AA4 EF?? F???      01207     GOTO        clear_blue_r
+000AA8 C035 FFE8      01208     MOVFF       black_h_r,WREG
+000AAC 6426           01209     CPFSGT      ADC_result_r
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 24
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000AAE EF?? F???      01210     GOTO        clear_blue_r
+000AB2 8039           01211     BSF         nav_reg,r
+000AB4 EF?? F???      01212     GOTO        nav_blue
+                      01213     
+000AB8                01214 clear_blue_r
+000AB8 9039           01215      BCF        nav_reg,r
+000ABA EF?? F???      01216      GOTO       nav_blue
+                      01217     
+000ABE                01218 check_green_l
+                      01219      ;Interupt ports
+000ABE 8093           01220     BSF         TRISB,0
+000AC0 9139           01221     BCF         ANSELB,0
+                      01222     
+                      01223     ; Initialize Interrupts
+000AC2 6AF2           01224     CLRF        INTCON  
+000AC4 88F2           01225     BSF         INTCON,INT0IE
+000AC6 8EF2           01226     BSF         INTCON,GIE
+                      01227      
+000AC8 EC?? F???      01228     CALL        ADCpoll_l
+000ACC C02F FFE8      01229     MOVFF       green_h_l,WREG
+000AD0 6025           01230     CPFSLT      ADC_result_l
+000AD2 EF?? F???      01231     GOTO        clear_green_l
+000AD6 C02E FFE8      01232     MOVFF       blue_h_l,WREG
+000ADA 6425           01233     CPFSGT      ADC_result_l
+000ADC EF?? F???      01234     GOTO        clear_green_l
+000AE0 8439           01235     BSF         nav_reg,l
+000AE2 EF?? F???      01236     GOTO        check_green_m
+                      01237     
+000AE6                01238 clear_green_l
+000AE6 9439           01239     BCF         nav_reg,l
+000AE8 EF?? F???      01240     GOTO        check_green_m
+                      01241     
+000AEC                01242 check_green_m
+000AEC EC?? F???      01243     CALL        ADCpoll_m
+000AF0 C033 FFE8      01244     MOVFF       green_h_m,WREG
+000AF4 6027           01245     CPFSLT      ADC_result_m
+000AF6 EF?? F???      01246     GOTO        clear_green_m
+000AFA C032 FFE8      01247     MOVFF       blue_h_m,WREG
+000AFE 6427           01248     CPFSGT      ADC_result_m
+000B00 EF?? F???      01249     GOTO        clear_green_m
+000B04 8239           01250     BSF         nav_reg,m
+000B06 EF?? F???      01251     GOTO        check_green_r
+                      01252     
+000B0A                01253 clear_green_m
+000B0A 9239           01254     BCF         nav_reg,m
+000B0C EF?? F???      01255     GOTO        check_green_r
+                      01256 
+000B10                01257 check_green_r
+000B10 EC?? F???      01258     CALL        ADCpoll_r
+000B14 C037 FFE8      01259     MOVFF       green_h_r,WREG
+000B18 6026           01260     CPFSLT      ADC_result_r
+000B1A EF?? F???      01261     GOTO        clear_green_r
+000B1E C036 FFE8      01262     MOVFF       blue_h_r,WREG
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 25
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000B22 6426           01263     CPFSGT      ADC_result_r
+000B24 EF?? F???      01264     GOTO        clear_green_r
+000B28 8039           01265     BSF         nav_reg,r
+000B2A EF?? F???      01266     GOTO        nav_green
+                      01267     
+000B2E                01268 clear_green_r
+000B2E 9039           01269     BCF         nav_reg,r
+000B30 EF?? F???      01270     GOTO        nav_green
+                      01271     
+000B34                01272 check_red_l
+                      01273     ;Interupt ports
+000B34 8093           01274     BSF         TRISB,0
+000B36 9139           01275     BCF         ANSELB,0
+                      01276     
+                      01277     ; Initialize Interrupts
+000B38 6AF2           01278     CLRF        INTCON  
+000B3A 88F2           01279     BSF         INTCON,INT0IE
+000B3C 8EF2           01280     BSF         INTCON,GIE
+                      01281     
+000B3E EC?? F???      01282     CALL        ADCpoll_l
+000B42 C030 FFE8      01283     MOVFF       red_h_l,WREG
+000B46 6025           01284     CPFSLT      ADC_result_l
+000B48 EF?? F???      01285     GOTO        clear_red_l
+000B4C C02F FFE8      01286     MOVFF       green_h_l,WREG
+000B50 6425           01287     CPFSGT      ADC_result_l
+000B52 EF?? F???      01288     GOTO        clear_red_l
+000B56 8439           01289     BSF         nav_reg,l
+000B58 EF?? F???      01290     GOTO        check_red_m
+                      01291     
+000B5C                01292 clear_red_l
+000B5C 9439           01293     BCF         nav_reg,l
+                      01294     
+000B5E                01295 check_red_m
+000B5E EC?? F???      01296     CALL        ADCpoll_m
+000B62 C034 FFE8      01297     MOVFF       red_h_m,WREG
+000B66 6027           01298     CPFSLT      ADC_result_m
+000B68 EF?? F???      01299     GOTO        clear_red_m
+000B6C C033 FFE8      01300     MOVFF       green_h_m,WREG
+000B70 6427           01301     CPFSGT      ADC_result_m
+000B72 EF?? F???      01302     GOTO        clear_red_m
+000B76 8239           01303     BSF         nav_reg,m
+000B78 EF?? F???      01304     GOTO        check_red_r
+                      01305     
+000B7C                01306 clear_red_m
+000B7C 9239           01307     BCF         nav_reg,m
+                      01308     
+000B7E                01309 check_red_r
+000B7E EC?? F???      01310     CALL        ADCpoll_r
+000B82 C038 FFE8      01311     MOVFF       red_h_r,WREG
+000B86 6026           01312     CPFSLT      ADC_result_r
+000B88 EF?? F???      01313     GOTO        clear_red_r
+000B8C C037 FFE8      01314     MOVFF       green_h_r,WREG
+000B90 6426           01315     CPFSGT      ADC_result_r
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 26
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000B92 EF?? F???      01316     GOTO        clear_red_r
+000B96 8039           01317     BSF         nav_reg,r
+000B98 EF?? F???      01318     GOTO        nav_red
+                      01319     
+000B9C                01320 clear_red_r
+000B9C 9039           01321     BCF         nav_reg,r
+000B9E EF?? F???      01322     GOTO        nav_red
+                      01323     
+000BA2                01324 nav_black
+000BA2 2E3A           01325     DECFSZ      counter1
+000BA4 EF?? F???      01326     GOTO        nav_black_start
+000BA8 EF?? F???      01327     GOTO        nav_black_inner_loop
+                      01328 
+000BAC                01329 nav_black_inner_loop
+000BAC 0EFF           01330     MOVLW       D'255'
+000BAE 6E3A           01331     MOVWF       counter1
+000BB0 2E3B           01332     DECFSZ      counter2
+000BB2 EF?? F???      01333     GOTO        nav_black
+000BB6 EF?? F???      01334     GOTO        mode
+                      01335     
+000BBA                01336 nav_black_start
+000BBA A439           01337     BTFSS       nav_reg,l
+000BBC EF?? F???      01338     GOTO        err_t_left_str_str_black        ;l=0
+000BC0 EF?? F???      01339     GOTO        t_right_err_str_stop_black              ;l=1
+                      01340     
+000BC4                01341 err_t_left_str_str_black
+000BC4 A239           01342     BTFSS       nav_reg,m
+000BC6 EF?? F???      01343     GOTO        error_turn_left_black   ;l=0,m=0
+000BCA EF?? F???      01344     GOTO        straight_straight_black ;l=0,m=1
+                      01345     
+000BCE                01346 t_right_err_str_stop_black
+000BCE A239           01347     BTFSS       nav_reg,m
+000BD0 EF?? F???      01348     GOTO        turn_right_error_black  ;l=1,m=0
+000BD4 EF?? F???      01349     GOTO        straight_stop_black             ;l=1,m=0
+                      01350     
+000BD8                01351 error_turn_left_black
+000BD8 A039           01352     BTFSS       nav_reg,r
+000BDA EF?? F???      01353     GOTO        error_black
+000BDE EF?? F???      01354     GOTO        turn_left_black
+                      01355     
+000BE2                01356 straight_straight_black
+000BE2 A039           01357     BTFSS       nav_reg,r
+000BE4 EF?? F???      01358     GOTO        straight_black
+000BE8 EF?? F???      01359     GOTO        straight_black
+                      01360     
+000BEC                01361 turn_right_error_black
+000BEC A039           01362     BTFSS       nav_reg,r
+000BEE EF?? F???      01363     GOTO        turn_right_black
+000BF2 EF?? F???      01364     GOTO        error_black
+                      01365     
+000BF6                01366 straight_stop_black     
+000BF6 A039           01367     BTFSS       nav_reg,r
+000BF8 EF?? F???      01368     GOTO        straight_black
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 27
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000BFC EF?? F???      01369     GOTO        stop_black
+                      01370     
+000C00                01371 error_black
+000C00 0E4F           01372     MOVLW       B'01001111'
+000C02 CFE8 F02A      01373     MOVFF       WREG,SSD
+000C06 EC?? F???      01374     CALL        SSD_display
+000C0A EF?? F???      01375     GOTO        check_black_l
+                      01376     
+000C0E                01377 turn_left_black
+000C0E 0E0E           01378     MOVLW       B'00001110'
+000C10 CFE8 F02A      01379     MOVFF       WREG,SSD
+000C14 EC?? F???      01380     CALL        SSD_display
+000C18 EF?? F???      01381     GOTO        check_black_l
+                      01382     
+000C1C                01383 straight_black
+000C1C 0E5B           01384     MOVLW       B'01011011'
+000C1E CFE8 F02A      01385     MOVFF       WREG,SSD
+000C22 EC?? F???      01386     CALL        SSD_display
+000C26 EF?? F???      01387     GOTO        check_black_l
+                      01388     
+000C2A                01389 turn_right_black
+000C2A 0E77           01390     MOVLW       B'01110111'
+000C2C CFE8 F02A      01391     MOVFF       WREG,SSD
+000C30 EC?? F???      01392     CALL        SSD_display
+000C34 EF?? F???      01393     GOTO        check_black_l
+                      01394     
+000C38                01395 stop_black
+000C38 0E37           01396     MOVLW       B'00110111'
+000C3A CFE8 F02A      01397     MOVFF       WREG,SSD
+000C3E EC?? F???      01398     CALL        SSD_display
+000C42 EF?? F???      01399     GOTO        check_black_l
+                      01400 
+000C46                01401 nav_blue
+000C46 2E3A           01402     DECFSZ      counter1
+000C48 EF?? F???      01403     GOTO        nav_blue_start
+000C4C EF?? F???      01404     GOTO        nav_blue_inner_loop
+                      01405 
+000C50                01406 nav_blue_inner_loop
+000C50 0EFF           01407     MOVLW       D'255'
+000C52 6E3A           01408     MOVWF       counter1
+000C54 2E3B           01409     DECFSZ      counter2
+000C56 EF?? F???      01410     GOTO        nav_blue
+000C5A EF?? F???      01411     GOTO        mode
+                      01412     
+000C5E                01413 nav_blue_start
+000C5E A439           01414     BTFSS       nav_reg,l
+000C60 EF?? F???      01415     GOTO        err_t_left_str_str_blue     ;l=0
+000C64 EF?? F???      01416     GOTO        t_right_err_str_stop_blue           ;l=1
+                      01417     
+000C68                01418 err_t_left_str_str_blue
+000C68 A239           01419     BTFSS       nav_reg,m
+000C6A EF?? F???      01420     GOTO        error_turn_left_blue            ;l=0,m=0
+000C6E EF?? F???      01421     GOTO        straight_straight_blue  ;l=0,m=1
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 28
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01422     
+000C72                01423 t_right_err_str_stop_blue
+000C72 A239           01424     BTFSS       nav_reg,m
+000C74 EF?? F???      01425     GOTO        turn_right_error_blue   ;l=1,m=0
+000C78 EF?? F???      01426     GOTO        straight_stop_blue              ;l=1,m=0
+                      01427     
+000C7C                01428 error_turn_left_blue
+000C7C A039           01429     BTFSS       nav_reg,r
+000C7E EF?? F???      01430     GOTO        error_blue
+000C82 EF?? F???      01431     GOTO        turn_left_blue
+                      01432     
+000C86                01433 straight_straight_blue
+000C86 A039           01434     BTFSS       nav_reg,r
+000C88 EF?? F???      01435     GOTO        straight_blue
+000C8C EF?? F???      01436     GOTO        straight_blue
+                      01437     
+000C90                01438 turn_right_error_blue
+000C90 A039           01439     BTFSS       nav_reg,r
+000C92 EF?? F???      01440     GOTO        turn_right_blue
+000C96 EF?? F???      01441     GOTO        error_blue
+                      01442     
+000C9A                01443 straight_stop_blue      
+000C9A A039           01444     BTFSS       nav_reg,r
+000C9C EF?? F???      01445     GOTO        straight_blue
+000CA0 EF?? F???      01446     GOTO        stop_blue
+                      01447     
+000CA4                01448 error_blue
+000CA4 0E4F           01449     MOVLW       B'01001111'
+000CA6 CFE8 F02A      01450     MOVFF       WREG,SSD
+000CAA EC?? F???      01451     CALL        SSD_display
+000CAE EF?? F???      01452     GOTO        check_blue_l
+                      01453     
+000CB2                01454 turn_left_blue
+000CB2 0E0E           01455     MOVLW       B'00001110'
+000CB4 CFE8 F02A      01456     MOVFF       WREG,SSD
+000CB8 EC?? F???      01457     CALL        SSD_display
+000CBC EF?? F???      01458     GOTO        check_blue_l
+                      01459     
+000CC0                01460 straight_blue
+000CC0 0E5B           01461     MOVLW       B'01011011'
+000CC2 CFE8 F02A      01462     MOVFF       WREG,SSD
+000CC6 EC?? F???      01463     CALL        SSD_display
+000CCA EF?? F???      01464     GOTO        check_blue_l
+                      01465     
+000CCE                01466 turn_right_blue
+000CCE 0E77           01467     MOVLW       B'01110111'
+000CD0 CFE8 F02A      01468     MOVFF       WREG,SSD
+000CD4 EC?? F???      01469     CALL        SSD_display
+000CD8 EF?? F???      01470     GOTO        check_blue_l
+                      01471     
+000CDC                01472 stop_blue
+000CDC 0E37           01473     MOVLW       B'00110111'
+000CDE CFE8 F02A      01474     MOVFF       WREG,SSD
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 29
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000CE2 EC?? F???      01475     CALL        SSD_display
+000CE6 EF?? F???      01476     GOTO        check_blue_l
+                      01477     
+000CEA                01478 nav_green
+000CEA 2E3A           01479     DECFSZ      counter1
+000CEC EF?? F???      01480     GOTO        nav_green_start
+000CF0 EF?? F???      01481     GOTO        nav_green_inner_loop
+                      01482 
+000CF4                01483 nav_green_inner_loop
+000CF4 0E14           01484     MOVLW       D'20'
+000CF6 6E3A           01485     MOVWF       counter1
+000CF8 2E3B           01486     DECFSZ      counter2
+000CFA EF?? F???      01487     GOTO        nav_green_start
+000CFE EF?? F???      01488     GOTO        mode
+                      01489     
+000D02                01490 nav_green_start
+000D02 A439           01491     BTFSS       nav_reg,l
+000D04 EF?? F???      01492     GOTO        err_t_left_str_str_green        ;l=0
+000D08 EF?? F???      01493     GOTO        t_right_err_str_stop_green              ;l=1
+                      01494     
+000D0C                01495 err_t_left_str_str_green
+000D0C A239           01496     BTFSS       nav_reg,m
+000D0E EF?? F???      01497     GOTO        error_turn_left_green   ;l=0,m=0
+000D12 EF?? F???      01498     GOTO        straight_straight_green ;l=0,m=1
+                      01499     
+000D16                01500 t_right_err_str_stop_green
+000D16 A239           01501     BTFSS       nav_reg,m
+000D18 EF?? F???      01502     GOTO        turn_right_error_green  ;l=1,m=0
+000D1C EF?? F???      01503     GOTO        straight_stop_green             ;l=1,m=0
+                      01504     
+000D20                01505 error_turn_left_green
+000D20 A039           01506     BTFSS       nav_reg,r
+000D22 EF?? F???      01507     GOTO        error_green
+000D26 EF?? F???      01508     GOTO        turn_left_green
+                      01509     
+000D2A                01510 straight_straight_green
+000D2A A039           01511     BTFSS       nav_reg,r
+000D2C EF?? F???      01512     GOTO        straight_green
+000D30 EF?? F???      01513     GOTO        straight_green
+                      01514     
+000D34                01515 turn_right_error_green
+000D34 A039           01516     BTFSS       nav_reg,r
+000D36 EF?? F???      01517     GOTO        turn_right_green
+000D3A EF?? F???      01518     GOTO        error_green
+                      01519     
+000D3E                01520 straight_stop_green
+000D3E A039           01521     BTFSS       nav_reg,r
+000D40 EF?? F???      01522     GOTO        straight_green
+000D44 EF?? F???      01523     GOTO        stop_green
+                      01524     
+000D48                01525 error_green
+000D48 0E4F           01526     MOVLW       B'01001111'
+000D4A CFE8 F02A      01527     MOVFF       WREG,SSD
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 30
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000D4E EC?? F???      01528     CALL        SSD_display
+000D52 EF?? F???      01529     GOTO        check_green_l
+                      01530     
+000D56                01531 turn_left_green
+000D56 0E0E           01532     MOVLW       B'00001110'
+000D58 CFE8 F02A      01533     MOVFF       WREG,SSD
+000D5C EC?? F???      01534     CALL        SSD_display
+000D60 EF?? F???      01535     GOTO        check_green_l
+                      01536     
+000D64                01537 straight_green
+000D64 0E5B           01538     MOVLW       B'01011011'
+000D66 CFE8 F02A      01539     MOVFF       WREG,SSD
+000D6A EC?? F???      01540     CALL        SSD_display
+000D6E EF?? F???      01541     GOTO        check_green_l
+                      01542     
+000D72                01543 turn_right_green
+000D72 0E77           01544     MOVLW       B'01110111'
+000D74 CFE8 F02A      01545     MOVFF       WREG,SSD
+000D78 EC?? F???      01546     CALL        SSD_display
+000D7C EF?? F???      01547     GOTO        check_green_l
+                      01548     
+000D80                01549 stop_green
+000D80 0E37           01550     MOVLW       B'00110111'
+000D82 CFE8 F02A      01551     MOVFF       WREG,SSD
+000D86 EC?? F???      01552     CALL        SSD_display
+000D8A EF?? F???      01553     GOTO        check_green_l
+                      01554     
+000D8E                01555 nav_red
+000D8E 2E3A           01556     DECFSZ      counter1
+000D90 EF?? F???      01557     GOTO        nav_red_start
+000D94 EF?? F???      01558     GOTO        nav_red_inner_loop
+                      01559 
+000D98                01560 nav_red_inner_loop
+000D98 0EFF           01561     MOVLW       D'255'
+000D9A 6E3A           01562     MOVWF       counter1
+000D9C 2E3B           01563     DECFSZ      counter2
+000D9E EF?? F???      01564     GOTO        nav_red
+000DA2 EF?? F???      01565     GOTO        mode
+                      01566     
+000DA6                01567 nav_red_start
+000DA6 A439           01568     BTFSS       nav_reg,l
+000DA8 EF?? F???      01569     GOTO        err_t_left_str_str_red  ;l=0
+000DAC EF?? F???      01570     GOTO        t_right_err_str_stop_red        ;l=1
+                      01571     
+000DB0                01572 err_t_left_str_str_red
+000DB0 A239           01573     BTFSS       nav_reg,m
+000DB2 EF?? F???      01574     GOTO        error_turn_left_red         ;l=0,m=0
+000DB6 EF?? F???      01575     GOTO        straight_straight_red    ;l=0,m=1
+                      01576     
+000DBA                01577 t_right_err_str_stop_red
+000DBA A239           01578     BTFSS       nav_reg,m
+000DBC EF?? F???      01579     GOTO        turn_right_error_red        ;l=1,m=0
+000DC0 EF?? F???      01580     GOTO        straight_stop_red           ;l=1,m=0
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 31
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01581     
+000DC4                01582 error_turn_left_red
+000DC4 A039           01583     BTFSS       nav_reg,r
+000DC6 EF?? F???      01584     GOTO        error_red
+000DCA EF?? F???      01585     GOTO        turn_left_red
+                      01586     
+000DCE                01587 straight_straight_red
+000DCE A039           01588     BTFSS       nav_reg,r
+000DD0 EF?? F???      01589     GOTO        straight_red
+000DD4 EF?? F???      01590     GOTO        straight_red
+                      01591     
+000DD8                01592 turn_right_error_red
+000DD8 A039           01593     BTFSS       nav_reg,r
+000DDA EF?? F???      01594     GOTO        turn_right_red
+000DDE EF?? F???      01595     GOTO        error_red
+                      01596     
+000DE2                01597 straight_stop_red
+000DE2 A039           01598     BTFSS       nav_reg,r
+000DE4 EF?? F???      01599     GOTO        straight_red
+000DE8 EF?? F???      01600     GOTO        stop_red
+                      01601     
+000DEC                01602 error_red
+000DEC 0E4F           01603     MOVLW       B'01001111'
+000DEE CFE8 F02A      01604     MOVFF       WREG,SSD
+000DF2 EC?? F???      01605     CALL        SSD_display
+000DF6 EF?? F???      01606     GOTO        check_red_l
+                      01607     
+000DFA                01608 turn_left_red
+000DFA 0E0E           01609     MOVLW       B'00001110'
+000DFC CFE8 F02A      01610     MOVFF       WREG,SSD
+000E00 EC?? F???      01611     CALL        SSD_display
+000E04 EF?? F???      01612     GOTO        check_red_l
+                      01613     
+000E08                01614 straight_red
+000E08 0E5B           01615     MOVLW       B'01011011'
+000E0A CFE8 F02A      01616     MOVFF       WREG,SSD
+000E0E EC?? F???      01617     CALL        SSD_display
+000E12 EF?? F???      01618     GOTO        check_red_l
+                      01619     
+000E16                01620 turn_right_red
+000E16 0E77           01621     MOVLW       B'01110111'
+000E18 CFE8 F02A      01622     MOVFF       WREG,SSD
+000E1C EC?? F???      01623     CALL        SSD_display
+000E20 EF?? F???      01624     GOTO        check_red_l
+                      01625     
+000E24                01626 stop_red
+000E24 0E37           01627     MOVLW       B'00110111'
+000E26 CFE8 F02A      01628     MOVFF       WREG,SSD
+000E2A EC?? F???      01629     CALL        SSD_display
+000E2E EF?? F???      01630     GOTO        check_red_l
+                      01631  ;</editor-fold>
+                      01632 ;========== Interrupt service routines ==========
+                      01633 ;<editor-fold defaultstate="collapsed" desc="Interrupt Service Routines">
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 32
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000E32                01634 state_change_ISR        ;GIE = '0'
+000E32 0000           01635     NOP
+000E34 9029           01636     BCF         mode_select_flag,startup_mode_flag
+000E36 0000           01637     NOP
+000E38 92F2           01638     BCF     INTCON,INT0IF
+000E3A 0010           01639     RETFIE      ;GIE = '1'
+                      01640     
+000E3C                01641 register_dump_isr       ;GIE = '0'
+000E3C                01642 detect_black_l_isr
+000E3C EC?? F???      01643     CALL        initialize_RGBs
+000E40 EC?? F???      01644     CALL        ADCpoll_l
+000E44 6AE8           01645     CLRF        WREG
+000E46 C02D FFE8      01646     MOVFF       black_h_l,WREG
+000E4A 6025           01647     CPFSLT      ADC_result_l
+000E4C EF?? F???      01648     GOTO        detect_blue_l_isr
+000E50 EC?? F???      01649     CALL        show_black_l
+000E54 EF?? F???      01650     GOTO        detect_black_m_isr
+                      01651     
+000E58                01652 detect_blue_l_isr
+000E58 6AE8           01653     CLRF        WREG
+000E5A C02E FFE8      01654     MOVFF       blue_h_l,WREG
+000E5E 6025           01655     CPFSLT      ADC_result_l
+000E60 EF?? F???      01656     GOTO        detect_green_l_isr
+000E64 EC?? F???      01657     CALL        show_blue_l
+000E68 EF?? F???      01658     GOTO        detect_black_m_isr
+                      01659     
+000E6C                01660 detect_green_l_isr
+000E6C 6AE8           01661     CLRF        WREG
+000E6E C02F FFE8      01662     MOVFF       green_h_l,WREG
+000E72 6025           01663     CPFSLT      ADC_result_l
+000E74 EF?? F???      01664     GOTO        detect_red_l_isr
+000E78 EC?? F???      01665     CALL        show_green_l
+000E7C EF?? F???      01666     GOTO        detect_black_m_isr
+                      01667     
+000E80                01668 detect_red_l_isr
+000E80 6AE8           01669     CLRF        WREG
+000E82 C030 FFE8      01670     MOVFF       red_h_l,WREG
+000E86 6025           01671     CPFSLT      ADC_result_l
+000E88 EF?? F???      01672     GOTO        detect_white_l_isr
+000E8C EC?? F???      01673     CALL        show_red_l
+000E90 EF?? F???      01674     GOTO        detect_black_m_isr
+                      01675     
+000E94                01676 detect_white_l_isr
+000E94 EC?? F???      01677     CALL        show_white_l
+000E98 EF?? F???      01678     GOTO        detect_black_m_isr
+                      01679     
+000E9C                01680 detect_black_m_isr
+000E9C EC?? F???      01681     CALL        ADCpoll_m
+000EA0 6AE8           01682     CLRF        WREG
+000EA2 C031 FFE8      01683     MOVFF       black_h_m,WREG
+000EA6 6027           01684     CPFSLT      ADC_result_m
+000EA8 EF?? F???      01685     GOTO        detect_blue_m_isr
+000EAC EC?? F???      01686     CALL        show_black_m
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 33
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000EB0 EF?? F???      01687     GOTO        detect_black_r_isr
+                      01688     
+000EB4                01689 detect_blue_m_isr
+000EB4 6AE8           01690     CLRF        WREG
+000EB6 C032 FFE8      01691     MOVFF       blue_h_m,WREG
+000EBA 6027           01692     CPFSLT      ADC_result_m
+000EBC EF?? F???      01693     GOTO        detect_green_m_isr
+000EC0 EC?? F???      01694     CALL        show_blue_m
+000EC4 EF?? F???      01695     GOTO        detect_black_r_isr
+                      01696     
+000EC8                01697 detect_green_m_isr
+000EC8 6AE8           01698     CLRF        WREG
+000ECA C033 FFE8      01699     MOVFF       green_h_m,WREG
+000ECE 6027           01700     CPFSLT      ADC_result_m
+000ED0 EF?? F???      01701     GOTO        detect_red_m_isr
+000ED4 EC?? F???      01702     CALL        show_green_m
+000ED8 EF?? F???      01703     GOTO        detect_black_r_isr
+                      01704     
+000EDC                01705 detect_red_m_isr
+000EDC 6AE8           01706     CLRF        WREG
+000EDE C034 FFE8      01707     MOVFF       red_h_m,WREG
+000EE2 6027           01708     CPFSLT      ADC_result_m
+000EE4 EF?? F???      01709     GOTO        detect_white_m_isr
+000EE8 EC?? F???      01710     CALL        show_red_m
+000EEC EF?? F???      01711     GOTO        detect_black_r_isr
+                      01712     
+000EF0                01713 detect_white_m_isr
+000EF0 EC?? F???      01714     CALL        show_white_m
+000EF4 EF?? F???      01715     GOTO        detect_black_r_isr
+                      01716     
+000EF8                01717 detect_black_r_isr
+000EF8 EC?? F???      01718     CALL        ADCpoll_r
+000EFC 6AE8           01719     CLRF        WREG
+000EFE C035 FFE8      01720     MOVFF       black_h_r,WREG
+000F02 6026           01721     CPFSLT      ADC_result_r
+000F04 EF?? F???      01722     GOTO        detect_blue_r_isr
+000F08 EC?? F???      01723     CALL        show_black_r
+000F0C EF?? F???      01724     GOTO        end_register_dump_isr
+                      01725     
+000F10                01726 detect_blue_r_isr
+000F10 6AE8           01727     CLRF        WREG
+000F12 C036 FFE8      01728     MOVFF       blue_h_r,WREG
+000F16 6026           01729     CPFSLT      ADC_result_r
+000F18 EF?? F???      01730     GOTO        detect_green_r_isr
+000F1C EC?? F???      01731     CALL        show_blue_r
+000F20 EF?? F???      01732     GOTO        end_register_dump_isr
+                      01733     
+000F24                01734 detect_green_r_isr
+000F24 6AE8           01735     CLRF        WREG
+000F26 C037 FFE8      01736     MOVFF       green_h_r,WREG
+000F2A 6026           01737     CPFSLT      ADC_result_r
+000F2C EF?? F???      01738     GOTO        detect_red_r_isr
+000F30 EC?? F???      01739     CALL        show_green_r
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 34
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000F34 EF?? F???      01740     GOTO        end_register_dump_isr
+                      01741     
+000F38                01742 detect_red_r_isr
+000F38 6AE8           01743     CLRF        WREG
+000F3A C038 FFE8      01744     MOVFF       red_h_r,WREG
+000F3E 6026           01745     CPFSLT      ADC_result_r
+000F40 EF?? F???      01746     GOTO        detect_white_r_isr
+000F44 EC?? F???      01747     CALL        show_red_r
+000F48 EF?? F???      01748     GOTO        end_register_dump_isr
+                      01749     
+000F4C                01750 detect_white_r_isr
+000F4C EC?? F???      01751     CALL        show_white_r
+000F50 EF?? F???      01752     GOTO        end_register_dump_isr
+                      01753     
+000F54                01754 end_register_dump_isr
+000F54 92F2           01755     BCF     INTCON,INT0IF
+000F56 0010           01756     RETFIE      ;GIE = '1'
+                      01757 ;</editor-fold>
+                      01758 ;========== Subroutines ==========
+                      01759 ;<editor-fold defaultstate="collapsed" desc="Delay Subroutines">
+                      01760 
+000F58                01761 delay_loop_1                    
+000F58 0EAA           01762     MOVLW       0xAA
+000F5A 6E20           01763     MOVWF       outer_loop_1            
+000F5C                01764 go_on_1                                 
+000F5C 0EBB           01765     MOVLW       0xBB
+000F5E 6E21           01766     MOVWF       inner_loop_1
+000F60                01767 go_on_2
+000F60 2E21           01768     DECFSZ      inner_loop_1,F  
+000F62 EF?? F???      01769     GOTO        go_on_2 
+000F66 2E20           01770     DECFSZ      outer_loop_1,F
+000F68 EF?? F???      01771     GOTO        go_on_1 
+000F6C 0012           01772     RETURN
+                      01773     
+000F6E                01774 delay_loop_333
+000F6E 0EFF           01775     MOVLW       D'255'
+000F70 6E2B           01776     MOVWF       outer_loop_333          
+000F72                01777 go_on_1_333                             
+000F72 0ED8           01778     MOVLW       D'216'
+000F74 6E2C           01779     MOVWF       inner_loop_333
+000F76                01780 go_on_2_333
+000F76 2E2C           01781     DECFSZ      inner_loop_333,F        
+000F78 EF?? F???      01782     GOTO        go_on_2_333
+000F7C 2E2B           01783     DECFSZ      outer_loop_333,F
+000F7E EF?? F???      01784     GOTO        go_on_1_333
+000F82 0012           01785     RETURN
+                      01786 ;</editor-fold>
+                      01787 ;<editor-fold defaultstate="collapsed" desc="ADC Subroutines">
+                      01788     ;ADC poll left sensor
+000F84                01789 ADCpoll_l
+000F84 010F           01790     MOVLB       0xF
+000F86 0E3D           01791     MOVLW       B'00111101'     ;AN15(RC3) enable (left)
+000F88 6EC2           01792     MOVWF       ADCON0
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 35
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000F8A 82C2           01793     BSF         ADCON0,GO
+000F8C 0100           01794     MOVLB       0x00
+000F8E                01795 poll_l 
+000F8E B2C2           01796     BTFSC       ADCON0,GO ;done?
+000F90 D???           01797     BRA         poll_l
+000F92 CFC4 FFE8      01798     MOVFF       ADRESH,WREG
+000F96 6E25           01799     MOVWF       ADC_result_l
+000F98 0012           01800     RETURN
+                      01801     
+                      01802 ;ADC poll middle sensor
+000F9A                01803 ADCpoll_m
+000F9A 010F           01804     MOVLB       0xF
+000F9C 0E41           01805     MOVLW       B'01000001'     ;AN16(RC4) enable (middle)
+000F9E 6EC2           01806     MOVWF       ADCON0
+000FA0 82C2           01807     BSF         ADCON0,GO
+000FA2 0100           01808     MOVLB       0x00
+000FA4                01809 poll_m
+000FA4 B2C2           01810     BTFSC       ADCON0,GO ;done?
+000FA6 D???           01811     BRA         poll_m
+000FA8 CFC4 FFE8      01812     MOVFF       ADRESH,WREG
+000FAC 6E27           01813     MOVWF       ADC_result_m
+000FAE 0012           01814     RETURN
+                      01815     
+                      01816 ;ADC poll right sensor
+000FB0                01817 ADCpoll_r
+000FB0 010F           01818     MOVLB       0xF
+000FB2 0E45           01819     MOVLW       B'01000101'     ;AN17(RC5) enable (right)
+000FB4 6EC2           01820     MOVWF       ADCON0
+000FB6 82C2           01821     BSF         ADCON0,GO
+000FB8 0100           01822     MOVLB       0x00
+000FBA                01823 poll_r
+000FBA B2C2           01824     BTFSC       ADCON0,GO ;done?
+000FBC D???           01825     BRA         poll_r
+000FBE CFC4 FFE8      01826     MOVFF       ADRESH,WREG
+000FC2 6E26           01827     MOVWF       ADC_result_r
+000FC4 0012           01828     RETURN
+                      01829 ;</editor-fold>
+                      01830 ;<editor-fold defaultstate="collapsed" desc="SSD Subroutines">
+000FC6                01831 SSD_display
+000FC6 6A95           01832     CLRF        TRISD
+000FC8 6B3B           01833     CLRF        ANSELD
+                      01834     
+000FCA C02A FF8C      01835     MOVFF       SSD,LATD
+000FCE 0000           01836     NOP
+000FD0 0012           01837     RETURN
+                      01838     
+000FD2                01839 SSD_clear
+000FD2 6A95           01840     CLRF        TRISD
+000FD4 6B3B           01841     CLRF        ANSELD
+                      01842     
+000FD6 0E00           01843     MOVLW       B'00000000'
+000FD8 CFE8 FF8C      01844     MOVFF       WREG,LATD
+000FDC 0000           01845     NOP
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 36
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000FDE 0012           01846     RETURN
+                      01847 ;</editor-fold>
+                      01848 ;<editor-fold defaultstate="collapsed" desc="RGB Subroutines">
+000FE0                01849 initialize_RGBs
+000FE0 010F           01850     MOVLB       0xF
+                      01851     ;left
+000FE2 9480           01852     BCF         PORTA,2
+000FE4 9680           01853     BCF         PORTA,3
+000FE6 9880           01854     BCF         PORTA,4
+                      01855     
+000FE8 9489           01856     BCF         LATA,2
+000FEA 9689           01857     BCF         LATA,3
+000FEC 9889           01858     BCF         LATA,4
+                      01859     
+000FEE 9538           01860     BCF         ANSELA,2
+000FF0 9738           01861     BCF         ANSELA,3
+000FF2 9938           01862     BCF         ANSELA,4
+                      01863     
+000FF4 9492           01864     BCF         TRISA,2
+000FF6 9692           01865     BCF         TRISA,3
+000FF8 9892           01866     BCF         TRISA,4
+                      01867     
+                      01868     
+                      01869     
+                      01870     ;middle
+000FFA 9084           01871     BCF         PORTE,0
+000FFC 9284           01872     BCF         PORTE,1
+000FFE 9484           01873     BCF         PORTE,2
+                      01874     
+001000 908D           01875     BCF         LATE,0
+001002 928D           01876     BCF         LATE,1
+001004 948D           01877     BCF         LATE,2
+                      01878     
+001006 913C           01879     BCF         ANSELE,0
+001008 933C           01880     BCF         ANSELE,1
+00100A 953C           01881     BCF         ANSELE,2
+                      01882     
+00100C 9096           01883     BCF         TRISE,0
+00100E 9296           01884     BCF         TRISE,1
+001010 9496           01885     BCF         TRISE,2
+                      01886     
+                      01887     ;right
+001012 9A80           01888     BCF         PORTA,5
+001014 9C80           01889     BCF         PORTA,6
+001016 9E80           01890     BCF         PORTA,7
+                      01891     
+001018 9A89           01892     BCF         LATA,5
+00101A 9C89           01893     BCF         LATA,6
+00101C 9E89           01894     BCF         LATA,7
+                      01895     
+00101E 9B38           01896     BCF         ANSELA,5
+001020 9D38           01897     BCF         ANSELA,6
+001022 9F38           01898     BCF         ANSELA,7
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 37
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      01899     
+001024 9A92           01900     BCF         TRISA,5
+001026 9C92           01901     BCF         TRISA,6
+001028 9E92           01902     BCF         TRISA,7
+                      01903     
+00102A 0100           01904     MOVLB       0x00
+00102C 0012           01905     RETURN
+                      01906     
+00102E                01907 show_black_l
+00102E 010F           01908     MOVLB       0xF
+001030 8489           01909     BSF         LATA,2
+001032 9689           01910     BCF         LATA,3
+001034 8889           01911     BSF         LATA,4
+001036 0100           01912     MOVLB       0x00
+001038 0012           01913     RETURN
+                      01914     
+00103A                01915 show_blue_l
+00103A 010F           01916     MOVLB       0xF
+00103C 9489           01917     BcF         LATA,2
+00103E 9689           01918     BCF         LATA,3
+001040 8889           01919     BSF         LATA,4
+001042 0100           01920     MOVLB       0x00
+001044 0012           01921     RETURN
+                      01922     
+001046                01923 show_green_l
+001046 010F           01924     MOVLB       0xF
+001048 8489           01925     BSF         LATA,2
+00104A 8689           01926     BSF         LATA,3
+00104C 9889           01927     BCF         LATA,4
+00104E 0100           01928     MOVLB       0x00
+001050 0012           01929     RETURN
+                      01930     
+001052                01931 show_red_l
+001052 010F           01932     MOVLB       0xF
+001054 8489           01933     BSF         LATA,2
+001056 9689           01934     BCF         LATA,3
+001058 9889           01935     BCF         LATA,4
+00105A 0100           01936     MOVLB       0x00
+00105C 0012           01937     RETURN
+                      01938     
+00105E                01939 show_white_l
+00105E 010F           01940     MOVLB       0xF
+001060 8489           01941     BSF         LATA,2
+001062 8689           01942     BSF         LATA,3
+001064 8889           01943     BSF         LATA,4
+001066 0100           01944     MOVLB       0x00
+001068 0012           01945     RETURN
+                      01946     
+00106A                01947 show_black_m
+00106A 010F           01948     MOVLB       0xF
+00106C 808D           01949     BSF         LATE,0
+00106E 928D           01950     BCF         LATE,1
+001070 848D           01951     BSF         LATE,2
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 38
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+001072 0100           01952     MOVLB       0x00
+001074 0012           01953     RETURN
+                      01954     
+001076                01955 show_blue_m
+001076 010F           01956     MOVLB       0xF
+001078 908D           01957     BcF         LATE,0
+00107A 928D           01958     BCF         LATE,1
+00107C 848D           01959     BSF         LATE,2
+00107E 0100           01960     MOVLB       0x00
+001080 0012           01961     RETURN
+                      01962     
+001082                01963 show_green_m
+001082 010F           01964     MOVLB       0xF
+001084 808D           01965     BSF         LATE,0
+001086 828D           01966     BSF         LATE,1
+001088 948D           01967     BCF         LATE,2
+00108A 0100           01968     MOVLB       0x00
+00108C 0012           01969     RETURN
+                      01970     
+00108E                01971 show_red_m
+00108E 010F           01972     MOVLB       0xF
+001090 808D           01973     BSF         LATE,0
+001092 928D           01974     BCF         LATE,1
+001094 948D           01975     BCF         LATE,2
+001096 0100           01976     MOVLB       0x00
+001098 0012           01977     RETURN
+                      01978     
+00109A                01979 show_white_m
+00109A 010F           01980     MOVLB       0xF
+00109C 808D           01981     BSF         LATE,0
+00109E 828D           01982     BSF         LATE,1
+0010A0 848D           01983     BSF         LATE,2
+0010A2 0100           01984     MOVLB       0x00
+0010A4 0012           01985     RETURN
+                      01986     
+0010A6                01987 show_black_r
+0010A6 010F           01988     MOVLB       0xF
+0010A8 8A89           01989     BSF         LATA,5
+0010AA 9C89           01990     BCF         LATA,6
+0010AC 8E89           01991     BSF         LATA,7
+0010AE 0100           01992     MOVLB       0x00
+0010B0 0012           01993     RETURN
+                      01994     
+0010B2                01995 show_blue_r
+0010B2 010F           01996     MOVLB       0xF
+0010B4 9A89           01997     BcF         LATA,5
+0010B6 9C89           01998     BCF         LATA,6
+0010B8 8E89           01999     BSF         LATA,7
+0010BA 0100           02000     MOVLB       0x00
+0010BC 0012           02001     RETURN
+                      02002     
+0010BE                02003 show_green_r
+0010BE 010F           02004     MOVLB       0xF
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 39
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0010C0 8A89           02005     BSF         LATA,5
+0010C2 8C89           02006     BSF         LATA,6
+0010C4 9E89           02007     BCF         LATA,7
+0010C6 0100           02008     MOVLB       0x00
+0010C8 0012           02009     RETURN
+                      02010     
+0010CA                02011 show_red_r
+0010CA 010F           02012     MOVLB       0xF
+0010CC 8A89           02013     BSF         LATA,5
+0010CE 9C89           02014     BCF         LATA,6
+0010D0 9E89           02015     BCF         LATA,7
+0010D2 0100           02016     MOVLB       0x00
+0010D4 0012           02017     RETURN
+                      02018     
+0010D6                02019 show_white_r
+0010D6 010F           02020     MOVLB       0xF
+0010D8 8A89           02021     BSF         LATA,5
+0010DA 8C89           02022     BSF         LATA,6
+0010DC 8E89           02023     BSF         LATA,7
+0010DE 0100           02024     MOVLB       0x00
+0010E0 0012           02025     RETURN
+                      02026     
+0010E2                02027 clear_RGB_l
+0010E2 010F           02028     MOVLB       0xF
+0010E4 9489           02029     BCF         LATA,2
+0010E6 9689           02030     BCF         LATA,3
+0010E8 9889           02031     BCF         LATA,4
+0010EA 0100           02032     MOVLB       0x00
+0010EC 0012           02033     RETURN
+                      02034     
+0010EE                02035 clear_RGB_m
+0010EE 010F           02036     MOVLB       0xF
+0010F0 908D           02037     BCF         LATE,0
+0010F2 928D           02038     BCF         LATE,1
+0010F4 948D           02039     BCF         LATE,2
+0010F6 0100           02040     MOVLB       0x00
+0010F8 0012           02041     RETURN
+                      02042     
+0010FA                02043 clear_RGB_r
+0010FA 010F           02044     MOVLB       0xF
+0010FC 9A89           02045     BCF         LATA,5
+0010FE 9C89           02046     BCF         LATA,6
+001100 9E89           02047     BCF         LATA,7
+001102 0100           02048     MOVLB       0x00
+001104 0012           02049     RETURN
+                      02050 ;</editor-fold>
+                      02051     end
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 40
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACKTIM                            00000007
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ADCMD                             00000000
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADC_result_l                      00000025
+ADC_result_m                      00000027
+ADC_result_r                      00000026
+ADCpoll_l                         00000F84
+ADCpoll_m                         00000F9A
+ADCpoll_r                         00000FB0
+ADDEN                             00000003
+ADDEN1                            00000003
+ADDEN2                            00000003
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AHEN                              00000001
+AN0                               00000000
+AN1                               00000001
+AN10                              00000001
+AN11                              00000004
+AN12                              00000000
+AN13                              00000005
+AN14                              00000002
+AN15                              00000003
+AN16                              00000004
+AN17                              00000005
+AN18                              00000006
+AN19                              00000007
+AN2                               00000002
+AN20                              00000000
+AN21                              00000001
+AN22                              00000002
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 41
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+AN23                              00000003
+AN24                              00000004
+AN25                              00000005
+AN26                              00000006
+AN27                              00000007
+AN3                               00000003
+AN4                               00000005
+AN5                               00000000
+AN6                               00000001
+AN7                               00000002
+AN8                               00000002
+AN9                               00000003
+ANSA0                             00000000
+ANSA1                             00000001
+ANSA2                             00000002
+ANSA3                             00000003
+ANSA5                             00000005
+ANSB0                             00000000
+ANSB1                             00000001
+ANSB2                             00000002
+ANSB3                             00000003
+ANSB4                             00000004
+ANSB5                             00000005
+ANSC2                             00000002
+ANSC3                             00000003
+ANSC4                             00000004
+ANSC5                             00000005
+ANSC6                             00000006
+ANSC7                             00000007
+ANSD0                             00000000
+ANSD1                             00000001
+ANSD2                             00000002
+ANSD3                             00000003
+ANSD4                             00000004
+ANSD5                             00000005
+ANSD6                             00000006
+ANSD7                             00000007
+ANSE0                             00000000
+ANSE1                             00000001
+ANSE2                             00000002
+ANSELA                            00000F38
+ANSELB                            00000F39
+ANSELC                            00000F3A
+ANSELD                            00000F3B
+ANSELE                            00000F3C
+BANKED                            00000001
+BAUD1CON                          00000FB8
+BAUD2CON                          00000F70
+BAUDCON                           00000FB8
+BAUDCON1                          00000FB8
+BAUDCON2                          00000F70
+BAUDCTL                           00000FB8
+BCL1IE                            00000003
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 42
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BCL1IF                            00000003
+BCL1IP                            00000003
+BCL2IE                            00000006
+BCL2IF                            00000006
+BCL2IP                            00000006
+BCLIE                             00000003
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BGVST                             00000006
+BOEN                              00000004
+BOR                               00000000
+BRG16                             00000003
+BRGH                              00000002
+BRGH1                             00000002
+BRGH2                             00000002
+BSR                               00000FE0
+C                                 00000000
+C12IN0M                           00000000
+C12IN0N                           00000000
+C12IN1M                           00000001
+C12IN1N                           00000001
+C12IN2M                           00000003
+C12IN2N                           00000003
+C12IN3M                           00000001
+C12IN3N                           00000001
+C1CH0                             00000000
+C1CH1                             00000001
+C1HYS                             00000003
+C1IE                              00000006
+C1IF                              00000006
+C1INP                             00000003
+C1IP                              00000006
+C1OE                              00000005
+C1ON                              00000007
+C1OUT_CM1CON                      00000006
+C1OUT_CM1CON0                     00000006
+C1OUT_PORTA                       00000004
+C1POL                             00000004
+C1R                               00000002
+C1RSEL                            00000005
+C1SP                              00000003
+C1SYNC                            00000001
+C1TSEL0                           00000000
+C1TSEL1                           00000001
+C2CH0                             00000000
+C2CH1                             00000001
+C2HYS                             00000002
+C2IE                              00000005
+C2IF                              00000005
+C2INP                             00000002
+C2IP                              00000005
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 43
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C2OE                              00000005
+C2ON                              00000007
+C2OUT_CM2CON                      00000006
+C2OUT_CM2CON0                     00000006
+C2OUT_PORTA                       00000005
+C2POL                             00000004
+C2R                               00000002
+C2RSEL                            00000004
+C2SP                              00000003
+C2SYNC                            00000000
+C2TSEL0                           00000003
+C2TSEL1                           00000004
+C3TSEL0                           00000006
+C3TSEL1                           00000007
+C4TSEL0                           00000000
+C4TSEL1                           00000001
+C5TSEL0                           00000002
+C5TSEL1                           00000003
+CCP1                              00000002
+CCP1AS0                           00000004
+CCP1AS1                           00000005
+CCP1AS2                           00000006
+CCP1ASE                           00000007
+CCP1CON                           00000FBD
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1MD                            00000000
+CCP2AS                            00000F64
+CCP2AS0                           00000004
+CCP2AS1                           00000005
+CCP2AS2                           00000006
+CCP2ASE                           00000007
+CCP2CON                           00000F66
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2MD                            00000001
+CCP2_PORTB                        00000003
+CCP2_PORTC                        00000001
+CCP3AS                            00000F5B
+CCP3AS0                           00000004
+CCP3AS1                           00000005
+CCP3AS2                           00000006
+CCP3ASE                           00000007
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 44
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCP3CON                           00000F5D
+CCP3IE                            00000000
+CCP3IF                            00000000
+CCP3IP                            00000000
+CCP3M0                            00000000
+CCP3M1                            00000001
+CCP3M2                            00000002
+CCP3M3                            00000003
+CCP3MD                            00000002
+CCP3_PORTB                        00000005
+CCP3_PORTE                        00000000
+CCP4                              00000001
+CCP4CON                           00000F57
+CCP4IE                            00000001
+CCP4IF                            00000001
+CCP4IP                            00000001
+CCP4M0                            00000000
+CCP4M1                            00000001
+CCP4M2                            00000002
+CCP4M3                            00000003
+CCP4MD                            00000003
+CCP5                              00000002
+CCP5CON                           00000F54
+CCP5IE                            00000002
+CCP5IF                            00000002
+CCP5IP                            00000002
+CCP5M0                            00000000
+CCP5M1                            00000001
+CCP5M2                            00000002
+CCP5M3                            00000003
+CCP5MD                            00000004
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000F67
+CCPR2H                            00000F68
+CCPR2L                            00000F67
+CCPR3                             00000F5E
+CCPR3H                            00000F5F
+CCPR3L                            00000F5E
+CCPR4                             00000F58
+CCPR4H                            00000F59
+CCPR4L                            00000F58
+CCPR5                             00000F55
+CCPR5H                            00000F56
+CCPR5L                            00000F55
+CCPTMRS0                          00000F49
+CCPTMRS1                          00000F48
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 45
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CHS4                              00000006
+CK                                00000006
+CK1                               00000006
+CK2                               00000006
+CKE                               00000006
+CKP                               00000004
+CKTXP                             00000004
+CM12CON                           00000F77
+CM1CON                            00000F79
+CM1CON0                           00000F79
+CM2CON                            00000F78
+CM2CON0                           00000F78
+CM2CON1                           00000F77
+CMP1MD                            00000001
+CMP2MD                            00000002
+CREN                              00000004
+CREN1                             00000004
+CREN2                             00000004
+CSRC                              00000007
+CSRC1                             00000007
+CSRC2                             00000007
+CTED1                             00000002
+CTED2                             00000003
+CTMUCON0                          00000F45
+CTMUCON1                          00000F44
+CTMUCONH                          00000F45
+CTMUCONL                          00000F44
+CTMUEN                            00000007
+CTMUICON                          00000F43
+CTMUICONH                         00000F43
+CTMUIE                            00000003
+CTMUIF                            00000003
+CTMUIP                            00000003
+CTMUMD                            00000003
+CTMUSIDL                          00000005
+CTPLS                             00000002
+CTTRIG                            00000000
+CVREF                             00000002
+D                                 00000005
+DACCON0                           00000F41
+DACCON1                           00000F40
+DACEN                             00000007
+DACLPS                            00000006
+DACNSS                            00000000
+DACOE                             00000005
+DACOUT                            00000002
+DACPSS0                           00000002
+DACPSS1                           00000003
+DACR0                             00000000
+DACR1                             00000001
+DACR2                             00000002
+DACR3                             00000003
+DACR4                             00000004
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 46
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DC3B0                             00000004
+DC3B1                             00000005
+DC4B0                             00000004
+DC4B1                             00000005
+DC5B0                             00000004
+DC5B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DHEN                              00000000
+DONE                              00000001
+DT1                               00000007
+DT2                               00000007
+DTRXP                             00000005
+D_A                               00000005
+D_NOT_A                           00000005
+ECCP1AS                           00000FB6
+ECCP2AS                           00000F64
+ECCP3AS                           00000F5B
+ECCPAS                            00000FB6
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EDG1POL                           00000004
+EDG1SEL0                          00000002
+EDG1SEL1                          00000003
+EDG1STAT                          00000000
+EDG2POL                           00000007
+EDG2SEL0                          00000005
+EDG2SEL1                          00000006
+EDG2STAT                          00000001
+EDGEN                             00000003
+EDGSEQEN                          00000002
+EEADR                             00000FA9
+EEADR0                            00000000
+EEADR1                            00000001
+EEADR2                            00000002
+EEADR3                            00000003
+EEADR4                            00000004
+EEADR5                            00000005
+EEADR6                            00000006
+EEADR7                            00000007
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 47
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+FAST                              00000001
+FERR                              00000002
+FERR1                             00000002
+FERR2                             00000002
+FLT0                              00000000
+FREE                              00000004
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+FVRCON                            00000F42
+FVREN                             00000007
+FVRS0                             00000004
+FVRS1                             00000005
+FVRST                             00000006
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GIE_GIEH                          00000007
+GO                                00000001
+GO_DONE                           00000001
+GO_NOT_DONE                       00000001
+HFIOFS                            00000002
+HLVDCON                           00000F9C
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+IDISSEN                           00000001
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 48
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOCB                              00000F62
+IOCB4                             00000004
+IOCB5                             00000005
+IOCB6                             00000006
+IOCB7                             00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IPR3                              00000FA5
+IPR4                              00000F7C
+IPR5                              00000F7F
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRNG0                             00000000
+IRNG1                             00000001
+IRVST                             00000005
+ITRIM0                            00000002
+ITRIM1                            00000003
+ITRIM2                            00000004
+ITRIM3                            00000005
+ITRIM4                            00000006
+ITRIM5                            00000007
+IVRST                             00000005
+KBI0                              00000004
+KBI1                              00000005
+KBI2                              00000006
+KBI3                              00000007
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 49
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+LATA6                             00000006
+LATA7                             00000007
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC3                             00000003
+LATC4                             00000004
+LATC5                             00000005
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LFIOFS                            00000000
+LVDCON                            00000F9C
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+MC1OUT                            00000007
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 50
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+MC2OUT                            00000006
+MCLR                              00000003
+MFIOFS                            00000001
+MFIOSEL                           00000004
+MSK0                              00000000
+MSK1                              00000001
+MSK2                              00000002
+MSK3                              00000003
+MSK4                              00000004
+MSK5                              00000005
+MSK6                              00000006
+MSK7                              00000007
+MSSP1MD                           00000006
+MSSP2MD                           00000007
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_MCLR                          00000003
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RI                            00000004
+NOT_SS                            00000005
+NOT_SS1                           00000005
+NOT_SS2                           00000003
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_T5SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WRITE                         00000002
+NVCFG0                            00000000
+NVCFG1                            00000001
+OERR                              00000001
+OERR1                             00000001
+OERR2                             00000001
+OSCCON                            00000FD3
+OSCCON2                           00000FD2
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1A                               00000002
+P1B                               00000005
+P1C                               00000006
+P1D                               00000007
+P1DC0                             00000000
+P1DC1                             00000001
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 51
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+P1DC2                             00000002
+P1DC3                             00000003
+P1DC4                             00000004
+P1DC5                             00000005
+P1DC6                             00000006
+P1M0                              00000006
+P1M1                              00000007
+P1RSEN                            00000007
+P1SSAC0                           00000002
+P1SSAC1                           00000003
+P1SSBD0                           00000000
+P1SSBD1                           00000001
+P2A_PORTB                         00000003
+P2A_PORTC                         00000001
+P2B_PORTC                         00000000
+P2B_PORTD                         00000002
+P2C                               00000003
+P2D                               00000004
+P2DC0                             00000000
+P2DC1                             00000001
+P2DC2                             00000002
+P2DC3                             00000003
+P2DC4                             00000004
+P2DC5                             00000005
+P2DC6                             00000006
+P2M0                              00000006
+P2M1                              00000007
+P2RSEN                            00000007
+P2SSAC0                           00000002
+P2SSAC1                           00000003
+P2SSBD0                           00000000
+P2SSBD1                           00000001
+P3A_PORTB                         00000005
+P3A_PORTE                         00000000
+P3B                               00000001
+P3DC0                             00000000
+P3DC1                             00000001
+P3DC2                             00000002
+P3DC3                             00000003
+P3DC4                             00000004
+P3DC5                             00000005
+P3DC6                             00000006
+P3M0                              00000006
+P3M1                              00000007
+P3RSEN                            00000007
+P3SSAC0                           00000002
+P3SSAC1                           00000003
+P3SSBD0                           00000000
+P3SSBD1                           00000001
+PC                                00000FF9
+PCIE                              00000006
+PCL                               00000FF9
+PCLATH                            00000FFA
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 52
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PEIE_GIEL                         00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIE3                              00000FA3
+PIE4                              00000F7A
+PIE5                              00000F7D
+PIR1                              00000F9E
+PIR2                              00000FA1
+PIR3                              00000FA4
+PIR4                              00000F7B
+PIR5                              00000F7E
+PLLEN                             00000006
+PLLRDY                            00000007
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+PMD0                              00000F3F
+PMD1                              00000F3E
+PMD2                              00000F3D
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PR2                               00000FBB
+PR4                               00000F52
+PR6                               00000F4B
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PRISD                             00000002
+PROD                              00000FF3
+PRODH                             00000FF4
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 53
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSS1AC0                           00000002
+PSS1AC1                           00000003
+PSS1BD0                           00000000
+PSS1BD1                           00000001
+PSS2AC0                           00000002
+PSS2AC1                           00000003
+PSS2BD0                           00000000
+PSS2BD1                           00000001
+PSS3AC0                           00000002
+PSS3AC1                           00000003
+PSS3BD0                           00000000
+PSS3BD1                           00000001
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+PSTR1CON                          00000FB9
+PSTR2CON                          00000F63
+PSTR3CON                          00000F5A
+PSTRCON                           00000FB9
+PVCFG0                            00000002
+PVCFG1                            00000003
+PWM1CON                           00000FB7
+PWM2CON                           00000F65
+PWM3CON                           00000F5C
+PWMCON                            00000FB7
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RA7                               00000007
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC1IE                             00000005
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 54
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RC1IF                             00000005
+RC1IP                             00000005
+RC1REG                            00000FAE
+RC1STA                            00000FAB
+RC2                               00000002
+RC2IE                             00000005
+RC2IF                             00000005
+RC2IP                             00000005
+RC2REG                            00000F74
+RC2STA                            00000F71
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCON                              00000FD0
+RCREG                             00000FAE
+RCREG1                            00000FAE
+RCREG2                            00000F74
+RCSTA                             00000FAB
+RCSTA1                            00000FAB
+RCSTA2                            00000F71
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000001
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+RE3                               00000003
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX1                               00000007
+RX2                               00000007
+RX9                               00000006
+RX91                              00000006
+RX92                              00000006
+RX9D                              00000000
+RX9D1                             00000000
+RX9D2                             00000000
+R_NOT_W                           00000002
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 55
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+R_W                               00000002
+S                                 00000003
+SBCDE                             00000002
+SBOREN                            00000006
+SCIE                              00000005
+SCK                               00000003
+SCK1                              00000003
+SCK2                              00000000
+SCKP                              00000004
+SCL                               00000003
+SCL1                              00000003
+SCL2                              00000000
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000004
+SDA1                              00000004
+SDA2                              00000001
+SDAHT                             00000003
+SDI                               00000004
+SDI1                              00000004
+SDI2                              00000001
+SDO                               00000005
+SDO1                              00000005
+SDO2                              00000004
+SEN                               00000000
+SENDB                             00000003
+SENDB1                            00000003
+SENDB2                            00000003
+SLRA                              00000000
+SLRB                              00000001
+SLRC                              00000002
+SLRCON                            00000F60
+SLRD                              00000003
+SLRE                              00000004
+SMP                               00000007
+SOSCGO                            00000003
+SOSCRUN                           00000006
+SP0                               00000000
+SP1                               00000001
+SP1BRG                            00000FAF
+SP1BRGH                           00000FB0
+SP2                               00000002
+SP2BRG                            00000F75
+SP2BRGH                           00000F76
+SP3                               00000003
+SP4                               00000004
+SPBRG                             00000FAF
+SPBRG1                            00000FAF
+SPBRG2                            00000F75
+SPBRGH                            00000FB0
+SPBRGH1                           00000FB0
+SPBRGH2                           00000F76
+SPEN                              00000007
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 56
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SPEN1                             00000007
+SPEN2                             00000007
+SRCLK0                            00000004
+SRCLK1                            00000005
+SRCLK2                            00000006
+SRCON0                            00000F47
+SRCON1                            00000F46
+SREN                              00000005
+SREN1                             00000005
+SREN2                             00000005
+SRI                               00000000
+SRLEN                             00000007
+SRNQ                              00000005
+SRNQEN                            00000002
+SRPR                              00000000
+SRPS                              00000001
+SRQ                               00000004
+SRQEN                             00000003
+SRRC1E                            00000000
+SRRC2E                            00000001
+SRRCKE                            00000002
+SRRPE                             00000003
+SRSC1E                            00000004
+SRSC2E                            00000005
+SRSCKE                            00000006
+SRSPE                             00000007
+SS                                00000005
+SS1                               00000005
+SS2                               00000003
+SSD                               0000002A
+SSD_clear                         00000FD2
+SSD_display                       00000FC6
+SSP1ADD                           00000FC8
+SSP1BUF                           00000FC9
+SSP1CON1                          00000FC6
+SSP1CON2                          00000FC5
+SSP1CON3                          00000FCB
+SSP1IE                            00000003
+SSP1IF                            00000003
+SSP1IP                            00000003
+SSP1MSK                           00000FCA
+SSP1STAT                          00000FC7
+SSP2ADD                           00000F6E
+SSP2BUF                           00000F6F
+SSP2CON1                          00000F6C
+SSP2CON2                          00000F6B
+SSP2CON3                          00000F69
+SSP2IE                            00000007
+SSP2IF                            00000007
+SSP2IP                            00000007
+SSP2MSK                           00000F6A
+SSP2STAT                          00000F6D
+SSPADD                            00000FC8
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 57
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPCON3                           00000FCB
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000FCA
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STATUS                            00000FD8
+STKFUL                            00000007
+STKOVF                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+STR1A                             00000000
+STR1B                             00000001
+STR1C                             00000002
+STR1D                             00000003
+STR1SYNC                          00000004
+STR2A                             00000000
+STR2B                             00000001
+STR2C                             00000002
+STR2D                             00000003
+STR2SYNC                          00000004
+STR3A                             00000000
+STR3B                             00000001
+STR3C                             00000002
+STR3D                             00000003
+STR3SYNC                          00000004
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+SYNC1                             00000004
+SYNC2                             00000004
+Setup                             00000012
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0PS0                             00000000
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 58
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T1CKI                             00000000
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1G                               00000005
+T1GCON                            00000FCC
+T1GGO                             00000003
+T1GGO_NOT_DONE                    00000003
+T1GPOL                            00000006
+T1GSPM                            00000004
+T1GSS0                            00000000
+T1GSS1                            00000001
+T1GTM                             00000005
+T1GVAL                            00000002
+T1G_DONE                          00000003
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RD16                            00000001
+T1SOSCEN                          00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FBA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CKI_PORTB                       00000005
+T3CKI_PORTC                       00000000
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3G                               00000000
+T3GCON                            00000FB4
+T3GGO                             00000003
+T3GGO_NOT_DONE                    00000003
+T3GPOL                            00000006
+T3GSPM                            00000004
+T3GSS0                            00000000
+T3GSS1                            00000001
+T3GTM                             00000005
+T3GVAL                            00000002
+T3G_DONE                          00000003
+T3OSCEN                           00000003
+T3RD16                            00000001
+T3SOSCEN                          00000003
+T4CKPS0                           00000000
+T4CKPS1                           00000001
+T4CON                             00000F51
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 59
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T4OUTPS0                          00000003
+T4OUTPS1                          00000004
+T4OUTPS2                          00000005
+T4OUTPS3                          00000006
+T5CKI                             00000002
+T5CKPS0                           00000004
+T5CKPS1                           00000005
+T5CON                             00000F4E
+T5G                               00000004
+T5GCON                            00000F4D
+T5GGO                             00000003
+T5GGO_NOT_DONE                    00000003
+T5GPOL                            00000006
+T5GSPM                            00000004
+T5GSS0                            00000000
+T5GSS1                            00000001
+T5GTM                             00000005
+T5GVAL                            00000002
+T5G_DONE                          00000003
+T5RD16                            00000001
+T5SOSCEN                          00000003
+T5SYNC                            00000002
+T6CKPS0                           00000000
+T6CKPS1                           00000001
+T6CON                             00000F4A
+T6OUTPS0                          00000003
+T6OUTPS1                          00000004
+T6OUTPS2                          00000005
+T6OUTPS3                          00000006
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TGEN                              00000004
+TMR0                              00000FD6
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1                              00000FCE
+TMR1CS0                           00000006
+TMR1CS1                           00000007
+TMR1GE                            00000007
+TMR1GIE                           00000000
+TMR1GIF                           00000000
+TMR1GIP                           00000000
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 60
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR1L                             00000FCE
+TMR1MD                            00000000
+TMR1ON                            00000000
+TMR2                              00000FBC
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2MD                            00000001
+TMR2ON                            00000002
+TMR3                              00000FB2
+TMR3CS0                           00000006
+TMR3CS1                           00000007
+TMR3GE                            00000007
+TMR3GIE                           00000001
+TMR3GIF                           00000001
+TMR3GIP                           00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3MD                            00000002
+TMR3ON                            00000000
+TMR4                              00000F53
+TMR4IE                            00000000
+TMR4IF                            00000000
+TMR4IP                            00000000
+TMR4MD                            00000003
+TMR4ON                            00000002
+TMR5                              00000F4F
+TMR5CS0                           00000006
+TMR5CS1                           00000007
+TMR5GE                            00000007
+TMR5GIE                           00000002
+TMR5GIF                           00000002
+TMR5GIP                           00000002
+TMR5H                             00000F50
+TMR5IE                            00000001
+TMR5IF                            00000001
+TMR5IP                            00000001
+TMR5L                             00000F4F
+TMR5MD                            00000004
+TMR5ON                            00000000
+TMR6                              00000F4C
+TMR6IE                            00000002
+TMR6IF                            00000002
+TMR6IP                            00000002
+TMR6MD                            00000005
+TMR6ON                            00000002
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 61
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TOSU                              00000FFF
+TRIGSEL                           00000007
+TRISA                             00000F92
+TRISA0                            00000000
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISA7                            00000007
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TRMT1                             00000001
+TRMT2                             00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+TX                                00000006
+TX1                               00000006
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 62
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TX1IE                             00000004
+TX1IF                             00000004
+TX1IP                             00000004
+TX1REG                            00000FAD
+TX1STA                            00000FAC
+TX2                               00000006
+TX2IE                             00000004
+TX2IF                             00000004
+TX2IP                             00000004
+TX2REG                            00000F73
+TX2STA                            00000F72
+TX9                               00000006
+TX91                              00000006
+TX92                              00000006
+TX9D                              00000000
+TX9D1                             00000000
+TX9D2                             00000000
+TXEN                              00000005
+TXEN1                             00000005
+TXEN2                             00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXREG1                            00000FAD
+TXREG2                            00000F73
+TXSTA                             00000FAC
+TXSTA1                            00000FAC
+TXSTA2                            00000F72
+UA                                00000001
+UART1MD                           00000006
+UART2MD                           00000007
+VDIRMAG                           00000007
+VPP                               00000003
+VREFCON0                          00000F42
+VREFCON1                          00000F41
+VREFCON2                          00000F40
+VREFM                             00000002
+VREFN                             00000002
+VREFP                             00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WPUB                              00000F61
+WPUB0                             00000000
+WPUB1                             00000001
+WPUB2                             00000002
+WPUB3                             00000003
+WPUB4                             00000004
+WPUB5                             00000005
+WPUB6                             00000006
+WPUB7                             00000007
+WPUE3                             00000007
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 63
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+WUE                               00000001
+Z                                 00000002
+_BOREN_NOSLP_2L                   000000FD
+_BOREN_OFF_2L                     000000F9
+_BOREN_ON_2L                      000000FB
+_BOREN_SBORDIS_2L                 000000FF
+_BORV_190_2L                      000000FF
+_BORV_220_2L                      000000F7
+_BORV_250_2L                      000000EF
+_BORV_285_2L                      000000E7
+_CCP2MX_PORTB3_3H                 000000FE
+_CCP2MX_PORTC1_3H                 000000FF
+_CCP3MX_PORTB5_3H                 000000FF
+_CCP3MX_PORTE0_3H                 000000FB
+_CONFIG1H                         00300001
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 64
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_FOSC_ECHPIO6_1H                  000000F5
+_FOSC_ECHP_1H                     000000F4
+_FOSC_ECLPIO6_1H                  000000FD
+_FOSC_ECLP_1H                     000000FC
+_FOSC_ECMPIO6_1H                  000000FB
+_FOSC_ECMP_1H                     000000FA
+_FOSC_HSHP_1H                     000000F2
+_FOSC_HSMP_1H                     000000F3
+_FOSC_INTIO67_1H                  000000F8
+_FOSC_INTIO7_1H                   000000F9
+_FOSC_LP_1H                       000000F0
+_FOSC_RCIO6_1H                    000000F7
+_FOSC_RC_1H                       000000F6
+_FOSC_XT_1H                       000000F1
+_HFOFST_OFF_3H                    000000F7
+_HFOFST_ON_3H                     000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_MCLRE_EXTMCLR_3H                 000000FF
+_MCLRE_INTMCLR_3H                 0000007F
+_P2BMX_PORTC0_3H                  000000DF
+_P2BMX_PORTD2_3H                  000000FF
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PLLCFG_OFF_1H                    000000EF
+_PLLCFG_ON_1H                     000000FF
+_PRICLKEN_OFF_1H                  000000DF
+_PRICLKEN_ON_1H                   000000FF
+_PWRTEN_OFF_2L                    000000FF
+_PWRTEN_ON_2L                     000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_T3CMX_PORTB5_3H                  000000EF
+_T3CMX_PORTC0_3H                  000000FF
+_WDTEN_NOSLP_2H                   000000FD
+_WDTEN_OFF_2H                     000000FC
+_WDTEN_ON_2H                      000000FF
+_WDTEN_SWON_2H                    000000FE
+_WDTPS_1024_2H                    000000EB
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 65
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_WDTPS_128_2H                     000000DF
+_WDTPS_16384_2H                   000000FB
+_WDTPS_16_2H                      000000D3
+_WDTPS_1_2H                       000000C3
+_WDTPS_2048_2H                    000000EF
+_WDTPS_256_2H                     000000E3
+_WDTPS_2_2H                       000000C7
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000D7
+_WDTPS_4096_2H                    000000F3
+_WDTPS_4_2H                       000000CB
+_WDTPS_512_2H                     000000E7
+_WDTPS_64_2H                      000000DB
+_WDTPS_8192_2H                    000000F7
+_WDTPS_8_2H                       000000CF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18F45K22                        00000001
+black_h_l                         0000002D
+black_h_m                         00000031
+black_h_r                         00000035
+blue_h_l                          0000002E
+blue_h_m                          00000032
+blue_h_r                          00000036
+cal_black_l                       00000298
+cal_black_m                       00000400
+cal_black_r                       00000568
+cal_blue_l                        000002F2
+cal_blue_m                        0000045A
+cal_blue_r                        000005C2
+cal_green_l                       0000034C
+cal_green_m                       000004B4
+cal_green_r                       0000061C
+cal_red_l                         000003A6
+cal_red_m                         0000050E
+cal_red_r                         00000676
+calibiration_mode_flag            00000002
+calibration_buffer_black_l        0000028A
+calibration_buffer_black_m        000003F2
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 66
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+calibration_buffer_black_r        0000055A
+calibration_buffer_blue_l         000002E4
+calibration_buffer_blue_m         0000044C
+calibration_buffer_blue_r         000005B4
+calibration_buffer_green_l        0000033E
+calibration_buffer_green_m        000004A6
+calibration_buffer_green_r        0000060E
+calibration_buffer_red_l          00000398
+calibration_buffer_red_m          00000500
+calibration_buffer_red_r          00000668
+calibration_mode                  00000002
+check_black_l                     00000A00
+check_black_m                     00000A20
+check_black_r                     00000A36
+check_blue_l                      00000A50
+check_blue_m                      00000A7A
+check_blue_r                      00000A9A
+check_green_l                     00000ABE
+check_green_m                     00000AEC
+check_green_r                     00000B10
+check_red_l                       00000B34
+check_red_m                       00000B5E
+check_red_r                       00000B7E
+clear_RGB_l                       000010E2
+clear_RGB_m                       000010EE
+clear_RGB_r                       000010FA
+clear_black_l                     00000A1E
+clear_black_m                     00000A34
+clear_black_r                     00000A4A
+clear_blue_l                      00000A78
+clear_blue_m                      00000A98
+clear_blue_r                      00000AB8
+clear_green_l                     00000AE6
+clear_green_m                     00000B0A
+clear_green_r                     00000B2E
+clear_red_l                       00000B5C
+clear_red_m                       00000B7C
+clear_red_r                       00000B9C
+colour_derector_mode_flag         00000003
+colour_detector_buffer            000007DA
+colour_detector_mode              00000003
+counter1                          0000003A
+counter2                          0000003B
+delay_loop_1                      00000F58
+delay_loop_333                    00000F6E
+detect_black_l                    000006C2
+detect_black_l_isr                00000E3C
+detect_black_m                    00000722
+detect_black_m_isr                00000E9C
+detect_black_r                    0000077E
+detect_black_r_isr                00000EF8
+detect_blue_l                     000006DE
+detect_blue_l_isr                 00000E58
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 67
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+detect_blue_m                     0000073A
+detect_blue_m_isr                 00000EB4
+detect_blue_r                     00000796
+detect_blue_r_isr                 00000F10
+detect_green_l                    000006F2
+detect_green_l_isr                00000E6C
+detect_green_m                    0000074E
+detect_green_m_isr                00000EC8
+detect_green_r                    000007AA
+detect_green_r_isr                00000F24
+detect_red_l                      00000706
+detect_red_l_isr                  00000E80
+detect_red_m                      00000762
+detect_red_m_isr                  00000EDC
+detect_red_r                      000007BE
+detect_red_r_isr                  00000F38
+detect_white_l                    0000071A
+detect_white_l_isr                00000E94
+detect_white_m                    00000776
+detect_white_m_isr                00000EF0
+detect_white_r                    000007D2
+detect_white_r_isr                00000F4C
+end_register_dump_isr             00000F54
+err_t_left_str_str_black          00000BC4
+err_t_left_str_str_blue           00000C68
+err_t_left_str_str_green          00000D0C
+err_t_left_str_str_red            00000DB0
+error_black                       00000C00
+error_blue                        00000CA4
+error_green                       00000D48
+error_red                         00000DEC
+error_turn_left_black             00000BD8
+error_turn_left_blue              00000C7C
+error_turn_left_green             00000D20
+error_turn_left_red               00000DC4
+go_on_1                           00000F5C
+go_on_1_333                       00000F72
+go_on_2                           00000F60
+go_on_2_333                       00000F76
+green_h_l                         0000002F
+green_h_m                         00000033
+green_h_r                         00000037
+initialize_RGBs                   00000FE0
+inner_loop_1                      00000021
+inner_loop_333                    0000002C
+l                                 00000002
+m                                 00000001
+mode                              000000D8
+mode_select                       00000028
+mode_select_flag                  00000029
+mode_select_mode                  00000001
+mode_selsct_mode_flag             00000001
+nav_black                         00000BA2
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 68
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+nav_black_inner_loop              00000BAC
+nav_black_start                   00000BBA
+nav_blue                          00000C46
+nav_blue_inner_loop               00000C50
+nav_blue_start                    00000C5E
+nav_green                         00000CEA
+nav_green_inner_loop              00000CF4
+nav_green_start                   00000D02
+nav_mode                          000007E4
+nav_red                           00000D8E
+nav_red_inner_loop                00000D98
+nav_red_start                     00000DA6
+nav_reg                           00000039
+navigation_mode                   00000004
+navigation_mode_flag              00000004
+outer_loop_1                      00000020
+outer_loop_333                    0000002B
+poll_l                            00000F8E
+poll_m                            00000FA4
+poll_r                            00000FBA
+r                                 00000000
+red_h_l                           00000030
+red_h_m                           00000034
+red_h_r                           00000038
+register_dump_isr                 00000E3C
+sensor_l                          00000022
+sensor_m                          00000023
+sensor_r                          00000024
+show_black                        000007FA
+show_black_buffer                 0000087E
+show_black_l                      0000102E
+show_black_m                      0000106A
+show_black_r                      000010A6
+show_black_transition             00000814
+show_blue                         00000886
+show_blue_buffer                  000008FC
+show_blue_l                       0000103A
+show_blue_m                       00001076
+show_blue_r                       000010B2
+show_blue_transition              0000089A
+show_c                            000000EE
+show_c_buffer                     00000172
+show_c_transition                 00000108
+show_d                            0000017E
+show_d_buffer                     000001FC
+show_d_transition                 00000192
+show_green                        00000904
+show_green_buffer                 0000097A
+show_green_l                      00001046
+show_green_m                      00001082
+show_green_r                      000010BE
+show_green_transition             00000918
+show_n                            00000204
+MPASM 5.87       EMK310_PRACTICAL_1_CODE.ASM   4-4-2023  9:04:24         PAGE 69
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+show_n_buffer                     00000282
+show_n_transition                 00000218
+show_red                          00000982
+show_red_buffer                   000009F8
+show_red_l                        00001052
+show_red_m                        0000108E
+show_red_r                        000010CA
+show_red_transition               00000996
+show_white_l                      0000105E
+show_white_m                      0000109A
+show_white_r                      000010D6
+startup                           000000B4
+startup_mode                      00000000
+startup_mode_flag                 00000000
+startup_transition                000000AA
+state_change_ISR                  00000E32
+stop_black                        00000C38
+stop_blue                         00000CDC
+stop_green                        00000D80
+stop_red                          00000E24
+straight_black                    00000C1C
+straight_blue                     00000CC0
+straight_green                    00000D64
+straight_red                      00000E08
+straight_stop_black               00000BF6
+straight_stop_blue                00000C9A
+straight_stop_green               00000D3E
+straight_stop_red                 00000DE2
+straight_straight_black           00000BE2
+straight_straight_blue            00000C86
+straight_straight_green           00000D2A
+straight_straight_red             00000DCE
+t_right_err_str_stop_black        00000BCE
+t_right_err_str_stop_blue         00000C72
+t_right_err_str_stop_green        00000D16
+t_right_err_str_stop_red          00000DBA
+turn_left_black                   00000C0E
+turn_left_blue                    00000CB2
+turn_left_green                   00000D56
+turn_left_red                     00000DFA
+turn_right_black                  00000C2A
+turn_right_blue                   00000CCE
+turn_right_error_black            00000BEC
+turn_right_error_blue             00000C90
+turn_right_error_green            00000D34
+turn_right_error_red              00000DD8
+turn_right_green                  00000D72
+turn_right_red                    00000E16
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+
