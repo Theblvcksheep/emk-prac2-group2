@@ -57,17 +57,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED="C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module_2.asm"
+SOURCEFILES_QUOTED_IF_SPACED="C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/EMK310_Practical_1_Code.asm" "C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module_2.asm" "C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module.asm"
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/2088238349/Code_Module_2.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/2088238349/Code_Module_2.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o ${OBJECTDIR}/_ext/1900048706/Code_Module.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o.d ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o.d ${OBJECTDIR}/_ext/1900048706/Code_Module.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/_ext/2088238349/Code_Module_2.o
+OBJECTFILES=${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o ${OBJECTDIR}/_ext/1900048706/Code_Module.o
 
 # Source Files
-SOURCEFILES=C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module_2.asm
+SOURCEFILES=C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/EMK310_Practical_1_Code.asm C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module_2.asm C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module.asm
 
 
 
@@ -95,22 +95,54 @@ MP_LINKER_DEBUG_OPTION=
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: assemble
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)
-${OBJECTDIR}/_ext/2088238349/Code_Module_2.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 1\ 2023/P1\ Code.X/Code_Module_2.asm  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/2088238349" 
-	@${RM} ${OBJECTDIR}/_ext/2088238349/Code_Module_2.o.d 
-	@${RM} ${OBJECTDIR}/_ext/2088238349/Code_Module_2.o 
-	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/2088238349/Code_Module_2.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -d__DEBUG -d__MPLAB_DEBUGGER_SIMULATOR=1 -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/2088238349/Code_Module_2.lst\" -e\"${OBJECTDIR}/_ext/2088238349/Code_Module_2.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/2088238349/Code_Module_2.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module_2.asm\" 
-	@${DEP_GEN} -d "${OBJECTDIR}/_ext/2088238349/Code_Module_2.o"
-	@${FIXDEPS} "${OBJECTDIR}/_ext/2088238349/Code_Module_2.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 2\ 2023/P2\ github/P1\ Code.X/EMK310_Practical_1_Code.asm  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1900048706" 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -d__DEBUG -d__MPLAB_DEBUGGER_SIMULATOR=1 -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.lst\" -e\"${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/EMK310_Practical_1_Code.asm\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o"
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+	
+${OBJECTDIR}/_ext/1900048706/Code_Module_2.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 2\ 2023/P2\ github/P1\ Code.X/Code_Module_2.asm  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1900048706" 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/1900048706/Code_Module_2.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -d__DEBUG -d__MPLAB_DEBUGGER_SIMULATOR=1 -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/1900048706/Code_Module_2.lst\" -e\"${OBJECTDIR}/_ext/1900048706/Code_Module_2.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/1900048706/Code_Module_2.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module_2.asm\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/_ext/1900048706/Code_Module_2.o"
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1900048706/Code_Module_2.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+	
+${OBJECTDIR}/_ext/1900048706/Code_Module.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 2\ 2023/P2\ github/P1\ Code.X/Code_Module.asm  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1900048706" 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/1900048706/Code_Module.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -d__DEBUG -d__MPLAB_DEBUGGER_SIMULATOR=1 -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/1900048706/Code_Module.lst\" -e\"${OBJECTDIR}/_ext/1900048706/Code_Module.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/1900048706/Code_Module.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module.asm\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/_ext/1900048706/Code_Module.o"
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1900048706/Code_Module.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
 	
 else
-${OBJECTDIR}/_ext/2088238349/Code_Module_2.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 1\ 2023/P1\ Code.X/Code_Module_2.asm  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}/_ext/2088238349" 
-	@${RM} ${OBJECTDIR}/_ext/2088238349/Code_Module_2.o.d 
-	@${RM} ${OBJECTDIR}/_ext/2088238349/Code_Module_2.o 
-	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/2088238349/Code_Module_2.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/2088238349/Code_Module_2.lst\" -e\"${OBJECTDIR}/_ext/2088238349/Code_Module_2.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/2088238349/Code_Module_2.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module_2.asm\" 
-	@${DEP_GEN} -d "${OBJECTDIR}/_ext/2088238349/Code_Module_2.o"
-	@${FIXDEPS} "${OBJECTDIR}/_ext/2088238349/Code_Module_2.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 2\ 2023/P2\ github/P1\ Code.X/EMK310_Practical_1_Code.asm  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1900048706" 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.lst\" -e\"${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/EMK310_Practical_1_Code.asm\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o"
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1900048706/EMK310_Practical_1_Code.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+	
+${OBJECTDIR}/_ext/1900048706/Code_Module_2.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 2\ 2023/P2\ github/P1\ Code.X/Code_Module_2.asm  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1900048706" 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module_2.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/1900048706/Code_Module_2.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/1900048706/Code_Module_2.lst\" -e\"${OBJECTDIR}/_ext/1900048706/Code_Module_2.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/1900048706/Code_Module_2.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module_2.asm\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/_ext/1900048706/Code_Module_2.o"
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1900048706/Code_Module_2.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
+	
+${OBJECTDIR}/_ext/1900048706/Code_Module.o: C\:/Users/tinom/OneDrive/Desktop/EMK310/Practical\ 2\ 2023/P2\ github/P1\ Code.X/Code_Module.asm  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/1900048706" 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1900048706/Code_Module.o 
+	@${FIXDEPS} dummy.d -e "${OBJECTDIR}/_ext/1900048706/Code_Module.err" $(SILENT) -c ${MP_AS} $(MP_EXTRA_AS_PRE) -q -p$(MP_PROCESSOR_OPTION)  -l\"${OBJECTDIR}/_ext/1900048706/Code_Module.lst\" -e\"${OBJECTDIR}/_ext/1900048706/Code_Module.err\" $(ASM_OPTIONS)    -o\"${OBJECTDIR}/_ext/1900048706/Code_Module.o\" \"C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module.asm\" 
+	@${DEP_GEN} -d "${OBJECTDIR}/_ext/1900048706/Code_Module.o"
+	@${FIXDEPS} "${OBJECTDIR}/_ext/1900048706/Code_Module.o.d" $(SILENT) -rsi ${MP_AS_DIR} -c18 
 	
 endif
 

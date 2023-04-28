@@ -12,15 +12,9 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/EMK310_Practical_1_Code.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/newpic_8b_general.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 15 Timer 2 delay_K22_SM.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 17 Data table_K22.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 17b Data table write_K22.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 18 Indirect addressing_K22.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 19 Macro_K22.asm</itemPath>
-      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module_2.asm</itemPath>
+      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/EMK310_Practical_1_Code.asm</itemPath>
+      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module_2.asm</itemPath>
+      <itemPath>C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 2 2023/P2 github/P1 Code.X/Code_Module.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -31,6 +25,7 @@
   <sourceRootList>
     <Elem>C:\Users\tinom\OneDrive\Desktop\EMK310\Code Examples\PIC18F45K22</Elem>
     <Elem>C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 1 2023\P1 Code.X</Elem>
+    <Elem>C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -72,86 +67,6 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 15 Timer 2 delay_K22_SM.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 17 Data table_K22.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 17b Data table write_K22.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 18 Indirect addressing_K22.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Code Examples/PIC18F45K22/Code Example 19 Macro_K22.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/Code_Module.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/EMK310_Practical_1_Code.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
-      <item path="C:/Users/tinom/OneDrive/Desktop/EMK310/Practical 1 2023/P1 Code.X/newpic_8b_general.asm"
-            ex="true"
-            overriding="false">
-        <MPASMWIN-AS>
-        </MPASMWIN-AS>
-        <MPASMWIN-LD>
-        </MPASMWIN-LD>
-        <mpasmsuite>
-        </mpasmsuite>
-      </item>
       <MPASMWIN-AS>
         <property key="cross.reference.file" value=""/>
         <property key="default.radix" value="HEX"/>
