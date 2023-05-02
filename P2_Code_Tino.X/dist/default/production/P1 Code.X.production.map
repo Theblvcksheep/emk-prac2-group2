@@ -1,0 +1,229 @@
+MPLINK 5.09, LINKER
+Linker Map File - Created Mon May 01 18:09:50 2023
+
+                                 Section Info
+                  Section       Type    Address   Location Size(Bytes)
+                ---------  ---------  ---------  ---------  ---------
+                   .org_0       code   0x000000    program   0x000004
+                   .cinit    romdata   0x000004    program   0x000002
+                   .org_1       code   0x000008    program   0x0009e8
+.config_300001_BUILD/DEFAULT/PRODUCTION/_EXT/19    romdata   0x300001    program   0x000001
+.config_300003_BUILD/DEFAULT/PRODUCTION/_EXT/19    romdata   0x300003    program   0x000001
+.config_300005_BUILD/DEFAULT/PRODUCTION/_EXT/19    romdata   0x300005    program   0x000001
+.config_300006_BUILD/DEFAULT/PRODUCTION/_EXT/19    romdata   0x300006    program   0x000001
+
+
+
+                              Program Memory Usage 
+                               Start         End      
+                           ---------   ---------      
+                            0x000000    0x000005      
+                            0x000008    0x0009ef      
+                            0x300001    0x300001      
+                            0x300003    0x300003      
+                            0x300005    0x300006      
+            2546 out of 33048 program addresses used, program memory utilization is 7%
+
+
+
+                              Symbols - Sorted by Name
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+              ISR_handler   0x0009bc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                SSD_clear   0x000252    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              SSD_display   0x000246    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                    Setup   0x00000c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0266   0x000266    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0324   0x000324    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_032E   0x00032e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0332   0x000332    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_033C   0x00033c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0340   0x000340    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_034A   0x00034a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_034E   0x00034e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0356   0x000356    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_036A   0x00036a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0374   0x000374    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0378   0x000378    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0382   0x000382    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0386   0x000386    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_038E   0x00038e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0398   0x000398    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_039C   0x00039c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_03A4   0x0003a4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_03B2   0x0003b2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_09C4   0x0009c4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_09D4   0x0009d4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         calibrate_state4   0x0001c6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               check_boom   0x0003be    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_c   0x000816    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_b   0x000924    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_g   0x0008f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_n   0x000956    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_r   0x0008c0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_enter   0x0008ac    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_f   0x0007e4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_p   0x0007b2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_r   0x000848    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_t   0x00087a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               clear_word   0x0003b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+            colour_select   0x00018e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               delay_10ms   0x000988    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           delay_10ms_end   0x0009a4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           delay_loop_333   0x0009a6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             display_menu   0x000450    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              flash_333ms   0x0009cc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+     follow_colour_state3   0x000178    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              go_on_1_333   0x0009aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              go_on_2_333   0x0009ae    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              i2c_receive   0x000366    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             i2c_transmit   0x000320    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+        i2c_transmit_test   0x000158    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+        i2c_transmit_word   0x000140    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  ini_ADC   0x0002c0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  ini_I2C   0x000306    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+ini_async_transmit_recieve   0x0002dc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+  ini_external_interrupts   0x00029c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+            ini_oscilator   0x0002b4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                ini_ports   0x00026e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               loop1_10ms   0x00098c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               loop2_10ms   0x00099a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              menu_select   0x0000f0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              menu_state1   0x0000d8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+            power_on_boom   0x0000c2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+          power_on_state0   0x00006c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           program_state2   0x000140    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              race_state5   0x000204    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  receive   0x0009d0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                    start   0x000042    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                   states   0x000042    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              test_B_boom   0x0003e2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_C_c   0x000822    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_F_f   0x0007f0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_P_p   0x0007be    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_R_r   0x000854    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_T_t   0x000886    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_b   0x000930    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_g   0x0008fe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_n   0x000962    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_r   0x0008cc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+          test_enter_boom   0x00043a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_c   0x000832    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_b   0x000940    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_g   0x00090e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_n   0x000972    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_r   0x0008dc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_f   0x000800    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_p   0x0007ce    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_r   0x000864    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_t   0x000896    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           test_excl_boom   0x000428    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              test_m_boom   0x000416    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_o1_boom   0x0003f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_o2_boom   0x000404    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              time_state7   0x000242    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 transmit   0x000260    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             vrooom_table   0x0009e0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+
+
+
+                              Symbols - Sorted by Address
+                     Name    Address   Location    Storage File                     
+                ---------  ---------  ---------  --------- ---------                
+                    Setup   0x00000c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                   states   0x000042    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                    start   0x000042    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+          power_on_state0   0x00006c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+            power_on_boom   0x0000c2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              menu_state1   0x0000d8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              menu_select   0x0000f0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           program_state2   0x000140    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+        i2c_transmit_word   0x000140    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+        i2c_transmit_test   0x000158    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+     follow_colour_state3   0x000178    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+            colour_select   0x00018e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         calibrate_state4   0x0001c6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              race_state5   0x000204    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              time_state7   0x000242    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              SSD_display   0x000246    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                SSD_clear   0x000252    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 transmit   0x000260    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0266   0x000266    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                ini_ports   0x00026e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+  ini_external_interrupts   0x00029c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+            ini_oscilator   0x0002b4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  ini_ADC   0x0002c0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+ini_async_transmit_recieve   0x0002dc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  ini_I2C   0x000306    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             i2c_transmit   0x000320    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0324   0x000324    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_032E   0x00032e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0332   0x000332    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_033C   0x00033c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0340   0x000340    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_034A   0x00034a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_034E   0x00034e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0356   0x000356    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              i2c_receive   0x000366    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_036A   0x00036a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0374   0x000374    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0378   0x000378    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0382   0x000382    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0386   0x000386    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_038E   0x00038e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_0398   0x000398    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_039C   0x00039c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_03A4   0x0003a4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_03B2   0x0003b2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               clear_word   0x0003b8    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               check_boom   0x0003be    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              test_B_boom   0x0003e2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_o1_boom   0x0003f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_o2_boom   0x000404    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              test_m_boom   0x000416    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           test_excl_boom   0x000428    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+          test_enter_boom   0x00043a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             display_menu   0x000450    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_p   0x0007b2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_P_p   0x0007be    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_p   0x0007ce    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_f   0x0007e4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_F_f   0x0007f0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_f   0x000800    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_c   0x000816    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_C_c   0x000822    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_c   0x000832    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_r   0x000848    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_R_r   0x000854    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_r   0x000864    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  check_t   0x00087a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                 test_T_t   0x000886    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             test_enter_t   0x000896    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_enter   0x0008ac    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_r   0x0008c0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_r   0x0008cc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_r   0x0008dc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_g   0x0008f2    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_g   0x0008fe    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_g   0x00090e    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_b   0x000924    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_b   0x000930    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_b   0x000940    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              check_col_n   0x000956    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               test_col_n   0x000962    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+         test_enter_col_n   0x000972    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               delay_10ms   0x000988    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               loop1_10ms   0x00098c    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+               loop2_10ms   0x00099a    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           delay_10ms_end   0x0009a4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+           delay_loop_333   0x0009a6    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              go_on_1_333   0x0009aa    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              go_on_2_333   0x0009ae    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              ISR_handler   0x0009bc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_09C4   0x0009c4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+              flash_333ms   0x0009cc    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+                  receive   0x0009d0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             _.org_1_09D4   0x0009d4    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+             vrooom_table   0x0009e0    program     static C:\Users\tinom\OneDrive\Desktop\EMK310\Practical 2 2023\P2 github\P1 Code.X\Code_Module.asm
+
+

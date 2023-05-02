@@ -1,0 +1,3143 @@
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  1
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00001     list        p=PIC18f45K22
+                      00002     #include    "p18f45K22.inc"
+                      00001         LIST
+                      00002 
+                      00003 ;==========================================================================
+                      00004 ; Build date : Jan 06 2020
+                      00005 ;  MPASM PIC18F45K22 processor include
+                      00006 ; 
+                      00007 ;  (c) Copyright 1999-2020 Microchip Technology, All rights reserved
+                      00008 ;==========================================================================
+                      00009 
+                      02795         LIST
+                      00003     
+                      00004 ;========== Configuration bits ==========
+                      00005     CONFIG  FOSC = INTIO67
+                      00006     CONFIG  WDTEN = OFF
+                      00007     CONFIG  MCLRE = EXTMCLR       ; MCLR Pin Enable bit (MCLR pin enabled, RE3 input pin disabled)
+                      00008     CONFIG  LVP = ON              ; Single-Supply ICSP Enable bit (Single-Supply ICSP enabled if MCLRE i
+                            s also 1)
+                      00009     
+                      00010 ;========== Variable definitions ==========
+                      00011 ;<editor-fold defaultstate="collapsed" desc="Variables">
+                      00012    cblock 0x20
+  00000020            00013    ISR_reg;0x20
+  00000021            00014    i2c_adress;0x21
+  00000022            00015    i2c_data;0x22
+  00000023            00016    count1_10ms;0x23
+  00000024            00017    count2_10ms;0x24
+  00000025            00018    state;0x25
+  00000026            00019    bit_received;0x26
+  00000027            00020    letter;0x27
+  00000028            00021    word_checkH;0x28
+  00000029            00022    word_checkL;29
+  0000002A            00023    race_col;30
+  0000002B            00024    SSD;31
+  0000002C            00025    outer_loop_333;32
+  0000002D            00026    inner_loop_333;33
+                      00027    endc
+                      00028  ;</editor-fold>
+                      00029 
+                      00030 ;========== Reset vector ==========
+                      00031         org     00h
+000000 EF?? F???      00032         goto    Setup  
+                      00033     
+                      00034 ;========== Interrupt vector ==========
+                      00035         org     08h
+000008 EF?? F???      00036         GOTO    ISR_handler 
+                      00037         
+                      00038 ;========== Initialization ==========
+                      00039 ;<editor-fold defaultstate="collapsed" desc="Setup">
+00000C                00040 Setup
+00000C 6A20           00041     CLRF    ISR_reg
+00000E 6A21           00042     CLRF    i2c_adress
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  2
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000010 6A22           00043     CLRF    i2c_data
+000012 6A23           00044     CLRF    count1_10ms
+000014 6A24           00045     CLRF    count2_10ms
+000016 6A25           00046     CLRF    state
+000018 6A26           00047     CLRF    bit_received
+00001A 6A27           00048     CLRF    letter
+00001C 6A29           00049     CLRF    word_checkL
+00001E 6A28           00050     CLRF    word_checkH
+000020 6A2A           00051     CLRF    race_col
+000022 6A2B           00052     CLRF    SSD
+000024 6A2C           00053     CLRF    outer_loop_333
+000026 6A2D           00054     CLRF    inner_loop_333
+                      00055     
+  00000000            00056 flash_333ms_isr     EQU     0
+  00000000            00057 power_on            EQU     0
+  00000001            00058 menu                EQU     1
+  00000002            00059 program             EQU     2
+  00000003            00060 follow_colour       EQU     3
+  00000004            00061 calibrate           EQU     4
+  00000005            00062 race                EQU     5
+  00000006            00063 racing              EQU     6
+  00000007            00064 time                EQU     7
+  00000003            00065 red                 EQU     3
+  00000002            00066 green               EQU     2
+  00000001            00067 blue                EQU     1
+  00000000            00068 black               EQU     0
+                      00069             
+000028 9020           00070     BCF     ISR_reg,flash_333ms_isr
+                      00071     
+00002A EC?? F???      00072     CALL    ini_ports
+                      00073     ;CALL    ini_external_interrupts
+00002E EC?? F???      00074     CALL    ini_oscilator
+000032 EC?? F???      00075     CALL    ini_ADC
+000036 EC?? F???      00076     CALL    ini_async_transmit_recieve
+00003A EC?? F???      00077     CALL    ini_I2C
+00003E EF?? F???      00078     GOTO    start
+                      00079  ;</editor-fold>
+                      00080 ; ------------- 
+                      00081 ; PROGRAM START 
+                      00082 ; -------------  
+000042                00083 start
+                      00084     
+000042                00085 states
+                      00086     ;--------------State select------------
+                      00087     ;BSF    state,power_on 
+                      00088     ;BSF    state,menu
+                      00089     ;BSF    state,program
+                      00090     ;BSF    state,follow_colour
+                      00091     ;BSF    state,calibrate
+                      00092     ;BSF    state,race
+                      00093     ;BSF    state,racing
+                      00094     ;BSF    state,time
+                      00095     ;--------------------------------------
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  3
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00096     
+000042 B025           00097     BTFSC   state,power_on 
+000044 EF?? F???      00098     GOTO    power_on_state0
+000048 B225           00099     BTFSC   state,menu
+00004A EF?? F???      00100     GOTO    menu_state1
+00004E B425           00101     BTFSC   state,program
+000050 EF?? F???      00102     GOTO    program_state2
+000054 B625           00103     BTFSC   state,follow_colour
+000056 EF?? F???      00104     GOTO    follow_colour_state3
+00005A B825           00105     BTFSC   state,calibrate
+00005C EF?? F???      00106     GOTO    calibrate_state4
+000060 BA25           00107     BTFSC   state,race
+000062 EF?? F???      00108     GOTO    race_state5
+                      00109     ;BTFSC   state,racing
+                      00110     ;GOTO    menu_state6
+000066 BE25           00111     BTFSC   state,time
+000068 EF?? F???      00112     GOTO    time_state7
+                      00113  
+                      00114 ;<editor-fold defaultstate="collapsed" desc="Power on (State 0)">
+00006C                00115 power_on_state0
+00006C EC?? F???      00116     CALL        SSD_clear
+000070 0E33           00117     MOVLW       B'00110011'
+000072 CFE8 F02B      00118     MOVFF       WREG,SSD
+000076 EC?? F???      00119     CALL        SSD_display
+                      00120     
+00007A 9025           00121     BCF     state,power_on
+00007C 6A29           00122     CLRF    word_checkL
+00007E 6A28           00123     CLRF    word_checkH
+                      00124     
+000080 0E0D           00125     MOVLW   B'00001101'
+000082 EC?? F???      00126     CALL    transmit
+000086 0E56           00127     MOVLW   'V'
+000088 EC?? F???      00128     CALL    transmit
+00008C 0E72           00129     MOVLW   'r'
+00008E EC?? F???      00130     CALL    transmit
+000092 0E6F           00131     MOVLW   'o'
+000094 EC?? F???      00132     CALL    transmit
+000098 0E6F           00133     MOVLW   'o'
+00009A EC?? F???      00134     CALL    transmit
+00009E 0E6F           00135     MOVLW   'o'
+0000A0 EC?? F???      00136     CALL    transmit
+0000A4 0E6D           00137     MOVLW   'm'
+0000A6 EC?? F???      00138     CALL    transmit
+0000AA 0E2E           00139     MOVLW   '.'
+0000AC EC?? F???      00140     CALL    transmit
+0000B0 0E2E           00141     MOVLW   '.'
+0000B2 EC?? F???      00142     CALL    transmit
+0000B6 0E2E           00143     MOVLW   '.'
+0000B8 EC?? F???      00144     CALL    transmit
+0000BC 0E0D           00145     MOVLW   B'00001101'
+0000BE EC?? F???      00146     CALL    transmit
+                      00147     
+0000C2                00148 power_on_boom
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  4
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0000C2 A026           00149     BTFSS   bit_received,0
+0000C4 EF?? F???      00150     GOTO    power_on_boom
+0000C8 EC?? F???      00151     CALL    check_boom
+0000CC A225           00152     BTFSS   state,menu
+0000CE EF?? F???      00153     GOTO    power_on_boom
+0000D2 9025           00154     BCF     state,power_on 
+0000D4 EF?? F???      00155     GOTO    states
+                      00156 ;</editor-fold>
+                      00157 ;<editor-fold defaultstate="collapsed" desc="Menu (State 1)">
+0000D8                00158 menu_state1
+0000D8 EC?? F???      00159     CALL        SSD_clear
+0000DC 0E7E           00160     MOVLW       B'01111110'
+0000DE CFE8 F02B      00161     MOVFF       WREG,SSD
+0000E2 EC?? F???      00162     CALL        SSD_display
+                      00163     
+0000E6 9225           00164     BCF     state,menu
+0000E8 6A29           00165     CLRF    word_checkL
+0000EA 6A28           00166     CLRF    word_checkH
+                      00167     
+0000EC EC?? F???      00168     CALL    display_menu
+                      00169    
+0000F0                00170 menu_select
+0000F0 A026           00171     BTFSS   bit_received,0
+0000F2 EF?? F???      00172     GOTO    menu_select
+                      00173     
+0000F6 EC?? F???      00174     CALL    check_p
+0000FA EC?? F???      00175     CALL    check_f
+0000FE EC?? F???      00176     CALL    check_c
+000102 EC?? F???      00177     CALL    check_r
+000106 EC?? F???      00178     CALL    check_t
+                      00179     
+00010A B028           00180     BTFSC   word_checkH,0           ;checks enter for P
+00010C 8425           00181     BSF     state,program
+00010E BC29           00182     BTFSC   word_checkL,6           ;checks enter for F
+000110 8625           00183     BSF     state,follow_colour
+000112 B829           00184     BTFSC   word_checkL,4           ;checks enter for C
+000114 8825           00185     BSF     state,calibrate
+000116 B429           00186     BTFSC   word_checkL,2           ;checks enter for R
+000118 8A25           00187     BSF     state,race
+00011A B029           00188     BTFSC   word_checkL,0           ;checks enter for T
+00011C 8E25           00189     BSF     state,time
+                      00190     
+00011E B425           00191     BTFSC   state,program
+000120 EF?? F???      00192     GOTO    states
+000124 B625           00193     BTFSC   state,follow_colour
+000126 EF?? F???      00194     GOTO    states
+00012A B825           00195     BTFSC   state,calibrate
+00012C EF?? F???      00196     GOTO    states
+000130 BA25           00197     BTFSC   state,race
+000132 EF?? F???      00198     GOTO    states
+000136 BE25           00199     BTFSC   state,time
+000138 EF?? F???      00200     GOTO    states
+00013C EF?? F???      00201     GOTO    menu_select
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00202 ;</editor-fold>
+                      00203 ;<editor-fold defaultstate="collapsed" desc="Program (State 2)">
+000140                00204 program_state2
+000140                00205 i2c_transmit_word
+000140 EC?? F???      00206     CALL        SSD_clear
+000144 0E30           00207     MOVLW       B'00110000'
+000146 CFE8 F02B      00208     MOVFF       WREG,SSD
+00014A EC?? F???      00209     CALL        SSD_display
+                      00210     
+00014E 9425           00211     BCF     state,program
+000150 9225           00212     BCF     state,menu
+000152 6A29           00213     CLRF    word_checkL
+000154 6A28           00214     CLRF    word_checkH
+000156 6A21           00215     CLRF    i2c_adress
+                      00216     
+000158                00217 i2c_transmit_test
+000158 A026           00218     BTFSS   bit_received,0
+00015A EF?? F???      00219     GOTO    i2c_transmit_test
+00015E CFE8 F022      00220     MOVFF   WREG,i2c_data
+000162 EC?? F???      00221     CALL    i2c_transmit
+000166 EC?? F???      00222     CALL    check_enter
+00016A A029           00223     BTFSS   word_checkL,0
+00016C EF?? F???      00224     GOTO    i2c_transmit_test
+000170 8225           00225     BSF     state,menu
+000172 9425           00226     BCF     state,program
+000174 EF?? F???      00227     GOTO    states
+                      00228 ;</editor-fold>
+                      00229 ;<editor-fold defaultstate="collapsed" desc="Follow colour (State 3)">
+000178                00230 follow_colour_state3
+000178 EC?? F???      00231     CALL        SSD_clear
+00017C 0E6D           00232     MOVLW       B'01101101'
+00017E CFE8 F02B      00233     MOVFF       WREG,SSD
+000182 EC?? F???      00234     CALL        SSD_display
+                      00235     
+000186 9625           00236     BCF     state,follow_colour
+000188 9225           00237     BCF     state,menu
+00018A 6A29           00238     CLRF    word_checkL
+00018C 6A28           00239     CLRF    word_checkH
+                      00240        
+00018E                00241 colour_select
+00018E A026           00242     BTFSS   bit_received,0
+000190 EF?? F???      00243     GOTO    colour_select
+                      00244     
+000194 EC?? F???      00245     CALL    check_col_r
+000198 EC?? F???      00246     CALL    check_col_b
+00019C EC?? F???      00247     CALL    check_col_g
+0001A0 EC?? F???      00248     CALL    check_col_n
+0001A4 EC?? F???      00249     CALL    check_boom
+                      00250     
+0001A8 BC28           00251     BTFSC   word_checkH,6           ;checks enter for r
+0001AA 862A           00252     BSF     race_col,red
+0001AC B828           00253     BTFSC   word_checkH,4           ;checks enter for g
+0001AE 8225           00254     BSF     state,menu
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  6
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0001B0 B428           00255     BTFSC   word_checkH,2           ;checks enter for b
+0001B2 8225           00256     BSF     state,menu
+0001B4 B028           00257     BTFSC   word_checkH,0           ;checks enter for n
+0001B6 8225           00258     BSF     state,menu
+0001B8 B029           00259     BTFSC   word_checkL,0           ;checks for boom
+0001BA 8225           00260     BSF     state,menu
+                      00261     
+0001BC A225           00262     BTFSS   state,menu
+0001BE EF?? F???      00263     GOTO    colour_select
+0001C2 EF?? F???      00264     GOTO    states
+                      00265 ;</editor-fold>
+                      00266 ;<editor-fold defaultstate="collapsed" desc="Calibrate (State 4)">
+0001C6                00267 calibrate_state4
+0001C6 EC?? F???      00268     CALL        SSD_clear
+0001CA 0E79           00269     MOVLW       B'01111001'
+0001CC CFE8 F02B      00270     MOVFF       WREG,SSD
+0001D0 EC?? F???      00271     CALL        SSD_display
+                      00272     
+0001D4 EC?? F???      00273     CALL    delay_loop_333
+0001D8 EC?? F???      00274     CALL    delay_loop_333
+0001DC EC?? F???      00275     CALL    delay_loop_333
+0001E0 EC?? F???      00276     CALL    delay_loop_333
+0001E4 EC?? F???      00277     CALL    delay_loop_333
+0001E8 EC?? F???      00278     CALL    delay_loop_333
+0001EC EC?? F???      00279     CALL    delay_loop_333
+0001F0 EC?? F???      00280     CALL    delay_loop_333
+0001F4 EC?? F???      00281     CALL    delay_loop_333
+                      00282     
+0001F8 9825           00283     BCF     state,calibrate
+0001FA 8225           00284     BSF     state,menu
+0001FC 6A29           00285     CLRF    word_checkL
+0001FE 6A28           00286     CLRF    word_checkH
+                      00287     
+000200 EF?? F???      00288     GOTO    states
+                      00289 ;</editor-fold>
+                      00290 ;<editor-fold defaultstate="collapsed" desc="Race (State 5)">
+000204                00291 race_state5
+000204 EC?? F???      00292     CALL        SSD_clear
+000208 0E33           00293     MOVLW       B'00110011'
+00020A CFE8 F02B      00294     MOVFF       WREG,SSD
+00020E EC?? F???      00295     CALL        SSD_display
+                      00296     
+000212 EC?? F???      00297     CALL    delay_loop_333
+000216 EC?? F???      00298     CALL    delay_loop_333
+00021A EC?? F???      00299     CALL    delay_loop_333
+00021E EC?? F???      00300     CALL    delay_loop_333
+000222 EC?? F???      00301     CALL    delay_loop_333
+000226 EC?? F???      00302     CALL    delay_loop_333
+00022A EC?? F???      00303     CALL    delay_loop_333
+00022E EC?? F???      00304     CALL    delay_loop_333
+000232 EC?? F???      00305     CALL    delay_loop_333
+                      00306     
+000236 9A25           00307     BCF     state,race
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  7
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000238 8225           00308     BSF     state,menu
+00023A 6A29           00309     CLRF    word_checkL
+00023C 6A28           00310     CLRF    word_checkH
+                      00311     
+00023E EF?? F???      00312     GOTO    states
+                      00313 ;</editor-fold>
+                      00314 ;<editor-fold defaultstate="collapsed" desc="Time (State 7)">
+000242                00315 time_state7
+000242 EF?? F???      00316     goto    states
+                      00317 ;</editor-fold>
+                      00318 ;========== Subroutines ==========
+                      00319 ;<editor-fold defaultstate="collapsed" desc="SSD Subroutines">
+000246                00320 SSD_display
+000246 6A95           00321     CLRF        TRISD
+000248 6B3B           00322     CLRF        ANSELD
+                      00323     
+00024A C02B FF8C      00324     MOVFF       SSD,LATD
+00024E 0000           00325     NOP
+000250 0012           00326     RETURN
+                      00327     
+000252                00328 SSD_clear
+000252 6A95           00329     CLRF        TRISD
+000254 6B3B           00330     CLRF        ANSELD
+                      00331     
+000256 0E00           00332     MOVLW       B'00000000'
+000258 CFE8 FF8C      00333     MOVFF       WREG,LATD
+00025C 0000           00334     NOP
+00025E 0012           00335     RETURN
+                      00336 ;</editor-fold>
+                      00337 ;<editor-fold defaultstate="collapsed" desc="Serial Transmission">
+000260                00338 transmit
+000260 CFE8 FFAD      00339     MOVFF   WREG,TXREG1         ;data to be transmitted-------------------------------------------------
+                            ---------------
+000264 A2AC           00340     BTFSS   TXSTA1,TRMT         ;check status of the transmission,
+000266 D???           00341     BRA     $-2                 ;TRMRT cleared if in progress, set if done
+000268 EC?? F???      00342     CALL    delay_10ms
+00026C 0012           00343     RETURN
+                      00344 ;</editor-fold>
+                      00345 ;<editor-fold defaultstate="collapsed" desc="Initialize Ports">
+00026E                00346 ini_ports
+00026E 010F           00347     MOVLB       0xF
+                      00348     
+000270 6A80           00349     CLRF        PORTA       ;PORT-Write/Read
+000272 6A89           00350     CLRF        LATA        ;LAT-Wrire to PORT/Read from LAT register
+000274 6B38           00351     CLRF        ANSELA      ;ANSEL-'1'=analog pin/'0'=digital pin
+000276 6A92           00352     CLRF        TRISA       ;TRIS-'1'=input pin/'0'=output pin
+                      00353     
+000278 6A81           00354     CLRF        PORTB
+00027A 6A8A           00355     CLRF        LATB
+00027C 6B39           00356     CLRF        ANSELB
+00027E 6A93           00357     CLRF        TRISB
+                      00358     
+000280 6A82           00359     CLRF        PORTC
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  8
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000282 6A8B           00360     CLRF        LATC
+000284 6B3A           00361     CLRF        ANSELC
+000286 6A94           00362     CLRF        TRISC
+                      00363     
+000288 6A83           00364     CLRF        PORTD
+00028A 6A8C           00365     CLRF        LATD
+00028C 6B3B           00366     CLRF        ANSELD
+00028E 6A95           00367     CLRF        TRISD
+                      00368     
+000290 6A84           00369     CLRF        PORTE       ;PORT-Write/Read
+000292 6A8D           00370     CLRF        LATE        ;LAT-Wrire to PORT/Read from LAT register
+000294 6B3C           00371     CLRF        ANSELE      ;ANSEL-'1'=analog pin/'0'=digital pin
+000296 6A96           00372     CLRF        TRISE       ;TRIS-'1'=input pin/'0'=output pin
+                      00373     
+000298 0100           00374     MOVLB       0x00
+00029A 0012           00375     RETURN
+                      00376 ;</editor-fold>
+                      00377 ;<editor-fold defaultstate="collapsed" desc="Initialize External Interrupts">
+00029C                00378 ini_external_interrupts
+00029C 010F           00379     MOVLB       0xF
+                      00380     
+00029E 9081           00381     BCF         PORTB,0
+0002A0 908A           00382     BCF         LATB,0
+0002A2 9139           00383     BCF         ANSELB,0
+0002A4 9093           00384     BCF         TRISB,0
+                      00385     
+0002A6 8093           00386     BSF         TRISB,0         ;TRIS-'1'=input pin/'0'=output pin
+0002A8 9139           00387     BCF         ANSELB,0        ;ANSEL-'1'=analog pin/'0'=digital pin
+                      00388     
+                      00389     ;Initialize Interrupts
+0002AA 6AF2           00390     CLRF        INTCON          ;button interrputs
+0002AC 88F2           00391     BSF         INTCON,INT0IE   ;
+0002AE 8EF2           00392     BSF         INTCON,GIE      ;
+                      00393     
+0002B0 0100           00394     MOVLB       0x00
+0002B2 0012           00395     RETURN
+                      00396 ;</editor-fold>
+                      00397 ;<editor-fold defaultstate="collapsed" desc="Initialize oscillator">
+0002B4                00398 ini_oscilator
+0002B4 010F           00399     MOVLB       0xF
+                      00400     
+0002B6 88D3           00401     BSF     OSCCON,IRCF0
+0002B8 9AD3           00402     BCF     OSCCON,IRCF1
+0002BA 8CD3           00403     BSF     OSCCON,IRCF2        ; IRCF<2:0> = '101' = 4Mhz
+                      00404     
+0002BC 0100           00405     MOVLB       0x00
+0002BE 0012           00406     RETURN
+                      00407     ;</editor-fold>
+                      00408 ;<editor-fold defaultstate="collapsed" desc="Initialize ADC">
+0002C0                00409 ini_ADC
+0002C0 010F           00410     MOVLB       0xF
+                      00411     
+0002C2 8092           00412     BSF         TRISA,0         ;RA0 = input
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE  9
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0002C4 8138           00413     BSF         ANSELA,0        ;RA0 = analog
+                      00414     
+0002C6 8292           00415     BSF         TRISA,1         ;RA1 = input
+0002C8 8338           00416     BSF         ANSELA,1        ;RA1 = analog
+                      00417     
+0002CA 8492           00418     BSF         TRISA,2         ;RA2 = input
+0002CC 8538           00419     BSF         ANSELA,2        ;RA2 = analog
+                      00420     
+0002CE 6AC4           00421     CLRF        ADRESH
+0002D0 0E2F           00422     MOVLW       B'00101111'     ;left justify
+0002D2 6EC0           00423     MOVWF       ADCON2          ;& 12 TAD ACQ time
+0002D4 0E00           00424     MOVLW       B'00000000'
+0002D6 6EC1           00425     MOVWF       ADCON1          ;ADC ref = Vdd, Vss
+                      00426     
+0002D8 0100           00427     MOVLB       0x00
+0002DA 0012           00428     RETURN
+                      00429     ;</editor-fold>
+                      00430 ;<editor-fold defaultstate="collapsed" desc="Initialize Asynchronous Transmission and Reception">
+0002DC                00431 ini_async_transmit_recieve
+0002DC 010F           00432     MOVLB       0xF
+                      00433     
+0002DE 8CF2           00434     BSF         INTCON,PEIE     ;serial reception interrputs
+0002E0 8A9D           00435     BSF         PIE1,RC1IE      ;sets the RCxIF bit when data transfers from the 
+                      00436                                 ;RSR to the receive buffer RCREGx; ISR occurs
+                      00437     
+                      00438     ;Initialize Asynchronous Transmission
+0002E2 6AAF           00439     CLRF    SPBRG1
+0002E4 6AB0           00440     CLRF    SPBRGH1
+                      00441     
+0002E6 98AC           00442     BCF     TXSTA1,SYNC         ;set baudrate
+0002E8 96B8           00443     BCF     BAUDCON1,BRG16      ;
+0002EA 84AC           00444     BSF     TXSTA1,BRGH         ;
+                      00445                                 ;
+0002EC 0E0C           00446     MOVLW   D'12'               ;sets baud rate to 19200 at 4MHz
+0002EE 6EAF           00447     MOVWF   SPBRG1              ;
+                      00448     
+0002F0 8C94           00449     BSF     TRISC,TX1
+0002F2 8E94           00450     BSF     TRISC,RX1
+                      00451     
+0002F4 8EAB           00452     BSF     RCSTA1,SPEN         ;set SPEN bit to enable the asynchronous serial port
+0002F6 9CAC           00453     BCF     TXSTA1,TX9          ;set the TX9 bit for 9-bit transmission
+0002F8 98B8           00454     BCF     BAUDCON1,CKTXP      ;Set CKTXP bit for inverted transmition polarity
+0002FA 8AAC           00455     BSF     TXSTA1,TXEN         ;enable the transmission;sets TXxIF interrupt bit
+                      00456     
+                      00457     ;Initialize Asynchronous Reception
+0002FC 9CAB           00458     BCF     RCSTA1,RX9          ;set RX9 bit for 9-bit reception
+0002FE 9AB8           00459     BCF     BAUDCON1,DTRXP      ;Set the DTRXP for inverted receive polarity
+000300 88AB           00460     BSF     RCSTA1,CREN
+                      00461     
+000302 0100           00462     MOVLB       0x00
+000304 0012           00463     RETURN
+                      00464 ;</editor-fold>
+                      00465 ;<editor-fold defaultstate="collapsed" desc="Initialize I2C Master Mode">
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 10
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000306                00466 ini_I2C
+000306 010F           00467     MOVLB       0xF
+                      00468 
+000308 6AC6           00469     CLRF    SSP1CON1
+00030A 86C6           00470     BSF     SSP1CON1,SSPM3      ;sets i2c to master mode
+00030C 94C6           00471     BCF     SSP1CON1,SSPM2      ;
+00030E 92C6           00472     BCF     SSP1CON1,SSPM1      ;
+000310 90C6           00473     BCF     SSP1CON1,SSPM0      ;
+                      00474     
+000312 8AC6           00475     BSF     SSP1CON1,SSPEN      ;enables synchronous serial port
+                      00476     
+000314 8694           00477     BSF     TRISC,SCL1
+000316 8894           00478     BSF     TRISC,SDA1
+                      00479     
+000318 0E09           00480     MOVLW   D'9'                ;sets Fcolck = 100KHz at fosc = 4MHz
+00031A 6EC8           00481     MOVWF   SSP1ADD             ;
+                      00482     
+00031C 0100           00483     MOVLB       0x00
+00031E 0012           00484     RETURN
+                      00485 ;</editor-fold>
+                      00486 ;<editor-fold defaultstate="collapsed" desc="I2C Transmission">
+000320                00487 i2c_transmit
+                      00488     
+000320 80C5           00489     BSF     SSP1CON2,SEN            ;send start condition to eeprom
+000322 A69E           00490     BTFSS   PIR1,SSP1IF             ;
+000324 D???           00491     BRA     $-2                     ;
+000326 969E           00492     BCF     PIR1,SSP1IF             ;
+                      00493 
+000328 0EA0           00494     MOVLW   B'10100000'             ;send control byte to eeprom
+00032A 6EC9           00495     MOVWF   SSP1BUF                 ;
+                      00496 
+00032C BC6B           00497     BTFSC   SSP2CON2,ACKSTAT        ;acknowlagement, from the eeprom, of data
+00032E D???           00498     BRA     $-2                     ;sent
+                      00499 
+000330 A69E           00500     BTFSS   PIR1,SSP1IF             ;after transmission is complete, msspx 
+000332 D???           00501     BRA     $-2                     ;module sets the sspxif, which must be 
+000334 969E           00502     BCF     PIR1,SSP1IF             ;cleared in software
+                      00503 
+000336 C021 FFC9      00504     MOVFF   i2c_adress,SSP1BUF      ;send target adress to eeprom
+                      00505 
+00033A BC6B           00506     BTFSC   SSP2CON2,ACKSTAT        ;acknowlagement, from the eeprom, of data
+00033C D???           00507     BRA     $-2                     ;sent
+                      00508 
+00033E A69E           00509     BTFSS   PIR1,SSP1IF             ;after transmission is complete, msspx 
+000340 D???           00510     BRA     $-2                     ;module sets the sspxif, which must be 
+000342 969E           00511     BCF     PIR1,SSP1IF             ;cleared in software
+                      00512 
+000344 C022 FFC9      00513     MOVFF   i2c_data,SSP1BUF        ;send data to eeprom
+                      00514 
+000348 BC6B           00515     BTFSC   SSP2CON2,ACKSTAT        ;acknowlagement, from the eeprom, of data
+00034A D???           00516     BRA     $-2                     ;sent
+                      00517 
+00034C A69E           00518     BTFSS   PIR1,SSP1IF             ;after transmission is complete, msspx 
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 11
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00034E D???           00519     BRA     $-2                     ;module sets the sspxif
+000350 969E           00520     BCF     PIR1,SSP1IF             ;
+                      00521 
+000352 84C5           00522     BSF     SSP1CON2,PEN            ;stop condition
+                      00523 
+000354 A69E           00524     BTFSS   PIR1,SSP1IF             ;after transmission is complete, msspx 
+000356 D???           00525     BRA     $-2                     ;module sets the sspxif, which must be 
+000358 969E           00526     BCF     PIR1,SSP1IF             ;cleared in software
+                      00527 
+00035A 2A21           00528     INCF    i2c_adress
+00035C EC?? F???      00529     call    delay_10ms
+000360 EC?? F???      00530     call    delay_10ms
+                      00531 
+000364 0012           00532     RETURN
+                      00533 ;</editor-fold>
+                      00534 ;<editor-fold defaultstate="collapsed" desc="I2C Reception">
+000366                00535 i2c_receive
+000366 82C5           00536     BSF             SSP1CON2,RSEN           ;send start condition to eeprom
+                      00537                                             ;(use RSEN for a continuous read)
+                      00538                                     
+000368 A69E           00539     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+00036A D???           00540     BRA             $-2                     ;module sets the sspxif, which must be
+00036C 969E           00541     BCF             PIR1,SSP1IF             ;cleared in software
+                      00542 
+00036E 0EA0           00543     MOVLW           B'10100000'             ;send write control byte to eeprom
+000370 6EC9           00544     MOVWF           SSP1BUF                 ;
+                      00545 
+000372 BC6B           00546     BTFSC           SSP2CON2,ACKSTAT        ;acknowlagement, from the eeprom, of data
+000374 D???           00547     BRA             $-2                     ;sent
+                      00548 
+000376 A69E           00549     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+000378 D???           00550     BRA              $-2                    ;module sets the sspxif, which must be
+00037A 969E           00551     BCF             PIR1,SSP1IF             ;cleared in software
+                      00552 
+00037C C021 FFC9      00553     MOVFF           i2c_adress,SSP1BUF      ;send target adress to eeprom
+                      00554 
+000380 BC6B           00555     BTFSC           SSP2CON2,ACKSTAT        ;acknowlagement, from the eeprom, of data
+000382 D???           00556     BRA             $-2                     ;sent
+                      00557 
+000384 A69E           00558     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+000386 D???           00559     BRA             $-2                     ;module sets the sspxif, which must be
+000388 969E           00560     BCF             PIR1,SSP1IF             ;cleared in software
+                      00561 
+00038A 82C5           00562     BSF             SSP1CON2,RSEN           ;send restart condition to eeprom
+                      00563 
+00038C A69E           00564     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+00038E D???           00565     BRA             $-2                     ;module sets the sspxif, which must be
+000390 969E           00566     BCF             PIR1,SSP1IF             ;cleared in software
+                      00567 
+000392 0EA1           00568     MOVLW           B'10100001'             ;send read control byte to eeprom
+000394 6EC9           00569     MOVWF           SSP1BUF                 ;
+                      00570 
+000396 BC6B           00571     BTFSC           SSP2CON2,ACKSTAT        ;acknowlagement, from the eeprom, of data
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 12
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000398 D???           00572     BRA             $-2                     ;sent
+                      00573 
+00039A A69E           00574     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+00039C D???           00575     BRA             $-2                     ;module sets the sspxif, which must be
+00039E 969E           00576     BCF             PIR1,SSP1IF             ;cleared in software
+                      00577 
+0003A0 86C5           00578     BSF             SSP1CON2,RCEN           ;begins reception from target eeprom adress
+                      00579 
+0003A2 A69E           00580     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+0003A4 D???           00581     BRA             $-2                     ;module sets the sspxif, which must be
+0003A6 969E           00582     BCF             PIR1,SSP1IF             ;cleared in software
+                      00583 
+0003A8 CFC9 F022      00584     MOVFF           SSP1BUF,i2c_data        ;stores recieved data in a file register
+                      00585 
+0003AC 8AC5           00586     BSF             SSP1CON2,ACKDT          ;master sets a not acknowlege. 
+0003AE 88C5           00587     BSF             SSP1CON2,ACKEN          ;master sends the not acknowlege
+                      00588 
+0003B0 A69E           00589     BTFSS           PIR1,SSP1IF             ;after transmission is complete, msspx 
+0003B2 D???           00590     BRA             $-2                     ;module sets the sspxif, which must be
+0003B4 969E           00591     BCF             PIR1,SSP1IF             ;cleared in software
+                      00592     
+0003B6 0012           00593     RETURN
+                      00594 ;</editor-fold>
+                      00595 ;<editor-fold defaultstate="collapsed" desc="Clear words">
+0003B8                00596 clear_word
+0003B8 6A29           00597     CLRF    word_checkL
+0003BA 6A28           00598     CLRF    word_checkH
+0003BC 0012           00599     RETURN
+                      00600 ;</editor-fold>
+                      00601 ;<editor-fold defaultstate="collapsed" desc=""Boom!<Enter>" Check">
+0003BE                00602 check_boom
+0003BE AA29           00603     BTFSS   word_checkL,5
+0003C0 EF?? F???      00604     GOTO    test_B_boom
+0003C4 A829           00605     BTFSS   word_checkL,4
+0003C6 EF?? F???      00606     GOTO    test_o1_boom
+0003CA A629           00607     BTFSS   word_checkL,3
+0003CC EF?? F???      00608     GOTO    test_o2_boom
+0003D0 A429           00609     BTFSS   word_checkL,2
+0003D2 EF?? F???      00610     GOTO    test_m_boom
+0003D6 A229           00611     BTFSS   word_checkL,1
+0003D8 EF?? F???      00612     GOTO    test_excl_boom
+0003DC A029           00613     BTFSS   word_checkL,0
+0003DE EF?? F???      00614     GOTO    test_enter_boom
+                      00615     
+                      00616     
+0003E2                00617 test_B_boom
+0003E2 9026           00618     BCF     bit_received,0
+0003E4 CFE8 F027      00619     MOVFF   WREG,letter
+0003E8 0E42           00620     MOVLW   'B'
+0003EA 6227           00621     CPFSEQ  letter
+0003EC 0012           00622     RETURN
+0003EE 8A29           00623     BSF     word_checkL,5
+0003F0 0012           00624     RETURN
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 13
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+                      00625     
+0003F2                00626 test_o1_boom
+0003F2 9026           00627     BCF     bit_received,0
+0003F4 CFE8 F027      00628     MOVFF   WREG,letter
+0003F8 0E6F           00629     MOVLW   'o'
+0003FA 6227           00630     CPFSEQ  letter
+0003FC EF?? F???      00631     GOTO    clear_word
+000400 8829           00632     BSF     word_checkL,4
+000402 0012           00633     RETURN
+                      00634     
+000404                00635 test_o2_boom
+000404 9026           00636     BCF     bit_received,0
+000406 CFE8 F027      00637     MOVFF   WREG,letter
+00040A 0E6F           00638     MOVLW   'o'
+00040C 6227           00639     CPFSEQ  letter
+00040E EF?? F???      00640     GOTO    clear_word
+000412 8629           00641     BSF     word_checkL,3
+000414 0012           00642     RETURN
+                      00643     
+000416                00644 test_m_boom
+000416 9026           00645     BCF     bit_received,0
+000418 CFE8 F027      00646     MOVFF   WREG,letter
+00041C 0E6D           00647     MOVLW   'm'
+00041E 6227           00648     CPFSEQ  letter
+000420 EF?? F???      00649     GOTO    clear_word
+000424 8429           00650     BSF     word_checkL,2
+000426 0012           00651     RETURN
+                      00652     
+000428                00653 test_excl_boom
+000428 9026           00654     BCF     bit_received,0
+00042A CFE8 F027      00655     MOVFF   WREG,letter
+00042E 0E21           00656     MOVLW   '!'
+000430 6227           00657     CPFSEQ  letter
+000432 EF?? F???      00658     GOTO    clear_word
+000436 8229           00659     BSF     word_checkL,1
+000438 0012           00660     RETURN
+                      00661     
+00043A                00662 test_enter_boom
+00043A 9026           00663     BCF     bit_received,0
+00043C CFE8 F027      00664     MOVFF   WREG,letter
+000440 0E0D           00665     MOVLW   '\r'
+000442 6227           00666     CPFSEQ  letter
+000444 EF?? F???      00667     GOTO    clear_word
+000448 8225           00668     BSF     state,menu
+00044A 8029           00669     BSF     word_checkL,0
+00044C 9025           00670     BCF     state,power_on
+00044E 0012           00671     RETURN
+                      00672 ;</editor-fold> 
+                      00673 ;<editor-fold defaultstate="collapsed" desc="Display Menu">
+000450                00674 display_menu
+000450 6AE8           00675     CLRF    WREG
+000452 0E54           00676     MOVLW   'T'
+000454 EC?? F???      00677     CALL    transmit
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 14
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000458 6AE8           00678     CLRF    WREG
+00045A 0E65           00679     MOVLW   'e'
+00045C EC?? F???      00680     CALL    transmit
+000460 6AE8           00681     CLRF    WREG
+000462 0E61           00682     MOVLW   'a'
+000464 EC?? F???      00683     CALL    transmit
+000468 6AE8           00684     CLRF    WREG
+00046A 0E6D           00685     MOVLW   'm'
+00046C EC?? F???      00686     CALL    transmit
+000470 6AE8           00687     CLRF    WREG
+000472 0E20           00688     MOVLW   B'00100000'
+000474 EC?? F???      00689     CALL    transmit
+000478 6AE8           00690     CLRF    WREG
+00047A 0E33           00691     MOVLW   '3'
+00047C EC?? F???      00692     CALL    transmit
+000480 6AE8           00693     CLRF    WREG
+000482 0E39           00694     MOVLW   '9'
+000484 EC?? F???      00695     CALL    transmit
+000488 6AE8           00696     CLRF    WREG
+00048A 0E20           00697     MOVLW   B'00100000'
+00048C EC?? F???      00698     CALL    transmit
+000490 6AE8           00699     CLRF    WREG
+000492 0E69           00700     MOVLW   'i'
+000494 EC?? F???      00701     CALL    transmit
+000498 6AE8           00702     CLRF    WREG
+00049A 0E73           00703     MOVLW   's'
+00049C EC?? F???      00704     CALL    transmit
+0004A0 6AE8           00705     CLRF    WREG
+0004A2 0E20           00706     MOVLW   B'00100000'
+0004A4 EC?? F???      00707     CALL    transmit
+0004A8 6AE8           00708     CLRF    WREG
+0004AA 0E54           00709     MOVLW   'T'
+0004AC EC?? F???      00710     CALL    transmit
+0004B0 6AE8           00711     CLRF    WREG
+0004B2 0E68           00712     MOVLW   'h'
+0004B4 EC?? F???      00713     CALL    transmit
+0004B8 6AE8           00714     CLRF    WREG
+0004BA 0E65           00715     MOVLW   'e'
+0004BC EC?? F???      00716     CALL    transmit
+0004C0 6AE8           00717     CLRF    WREG
+0004C2 0E20           00718     MOVLW   B'00100000'
+0004C4 EC?? F???      00719     CALL    transmit
+0004C8 6AE8           00720     CLRF    WREG
+0004CA 0E41           00721     MOVLW   'A'
+0004CC EC?? F???      00722     CALL    transmit
+0004D0 6AE8           00723     CLRF    WREG
+0004D2 0E20           00724     MOVLW   B'00100000'
+0004D4 EC?? F???      00725     CALL    transmit
+0004D8 6AE8           00726     CLRF    WREG
+0004DA 0E54           00727     MOVLW   'T'
+0004DC EC?? F???      00728     CALL    transmit
+0004E0 6AE8           00729     CLRF    WREG
+0004E2 0E65           00730     MOVLW   'e'
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 15
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0004E4 EC?? F???      00731     CALL    transmit
+0004E8 6AE8           00732     CLRF    WREG
+0004EA 0E61           00733     MOVLW   'a'
+0004EC EC?? F???      00734     CALL    transmit
+0004F0 6AE8           00735     CLRF    WREG
+0004F2 0E6D           00736     MOVLW   'm'
+0004F4 EC?? F???      00737     CALL    transmit
+0004F8 6AE8           00738     CLRF    WREG
+0004FA 0E0D           00739     MOVLW   B'00001101'
+0004FC EC?? F???      00740     CALL    transmit
+000500 6AE8           00741     CLRF    WREG
+000502 0E28           00742     MOVLW   '('
+000504 EC?? F???      00743     CALL    transmit
+000508 6AE8           00744     CLRF    WREG
+00050A 0E73           00745     MOVLW   's'
+00050C EC?? F???      00746     CALL    transmit
+000510 6AE8           00747     CLRF    WREG
+000512 0E6C           00748     MOVLW   'l'
+000514 EC?? F???      00749     CALL    transmit
+000518 6AE8           00750     CLRF    WREG
+00051A 0E6F           00751     MOVLW   'o'
+00051C EC?? F???      00752     CALL    transmit
+000520 6AE8           00753     CLRF    WREG
+000522 0E67           00754     MOVLW   'g'
+000524 EC?? F???      00755     CALL    transmit
+000528 6AE8           00756     CLRF    WREG
+00052A 0E61           00757     MOVLW   'a'
+00052C EC?? F???      00758     CALL    transmit
+000530 6AE8           00759     CLRF    WREG
+000532 0E6E           00760     MOVLW   'n'
+000534 EC?? F???      00761     CALL    transmit
+000538 6AE8           00762     CLRF    WREG
+00053A 0E29           00763     MOVLW   ')'
+00053C EC?? F???      00764     CALL    transmit
+000540 6AE8           00765     CLRF    WREG
+000542 0E0D           00766     MOVLW   B'00001101'
+000544 EC?? F???      00767     CALL    transmit
+000548 6AE8           00768     CLRF    WREG
+00054A 0E43           00769     MOVLW   'C'
+00054C EC?? F???      00770     CALL    transmit
+000550 6AE8           00771     CLRF    WREG
+000552 0E68           00772     MOVLW   'h'
+000554 EC?? F???      00773     CALL    transmit
+000558 6AE8           00774     CLRF    WREG
+00055A 0E6F           00775     MOVLW   'o'
+00055C EC?? F???      00776     CALL    transmit
+000560 6AE8           00777     CLRF    WREG
+000562 0E6F           00778     MOVLW   'o'
+000564 EC?? F???      00779     CALL    transmit
+000568 6AE8           00780     CLRF    WREG
+00056A 0E73           00781     MOVLW   's'
+00056C EC?? F???      00782     CALL    transmit
+000570 6AE8           00783     CLRF    WREG
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 16
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000572 0E65           00784     MOVLW   'e'
+000574 EC?? F???      00785     CALL    transmit
+000578 6AE8           00786     CLRF    WREG
+00057A 0E20           00787     MOVLW   B'00100000'
+00057C EC?? F???      00788     CALL    transmit
+000580 6AE8           00789     CLRF    WREG
+000582 0E79           00790     MOVLW   'y'
+000584 EC?? F???      00791     CALL    transmit
+000588 6AE8           00792     CLRF    WREG
+00058A 0E6F           00793     MOVLW   'o'
+00058C EC?? F???      00794     CALL    transmit
+000590 6AE8           00795     CLRF    WREG
+000592 0E75           00796     MOVLW   'u'
+000594 EC?? F???      00797     CALL    transmit
+000598 6AE8           00798     CLRF    WREG
+00059A 0E72           00799     MOVLW   'r'
+00059C EC?? F???      00800     CALL    transmit
+0005A0 6AE8           00801     CLRF    WREG
+0005A2 0E20           00802     MOVLW   B'00100000'
+0005A4 EC?? F???      00803     CALL    transmit
+0005A8 6AE8           00804     CLRF    WREG
+0005AA 0E4D           00805     MOVLW   'M'
+0005AC EC?? F???      00806     CALL    transmit
+0005B0 6AE8           00807     CLRF    WREG
+0005B2 0E41           00808     MOVLW   'A'
+0005B4 EC?? F???      00809     CALL    transmit
+0005B8 6AE8           00810     CLRF    WREG
+0005BA 0E52           00811     MOVLW   'R'
+0005BC EC?? F???      00812     CALL    transmit
+0005C0 6AE8           00813     CLRF    WREG
+0005C2 0E56           00814     MOVLW   'V'
+0005C4 EC?? F???      00815     CALL    transmit
+0005C8 6AE8           00816     CLRF    WREG
+0005CA 0E20           00817     MOVLW   B'00100000'
+0005CC EC?? F???      00818     CALL    transmit
+0005D0 6AE8           00819     CLRF    WREG
+0005D2 0E6D           00820     MOVLW   'm'
+0005D4 EC?? F???      00821     CALL    transmit
+0005D8 6AE8           00822     CLRF    WREG
+0005DA 0E6F           00823     MOVLW   'o'
+0005DC EC?? F???      00824     CALL    transmit
+0005E0 6AE8           00825     CLRF    WREG
+0005E2 0E64           00826     MOVLW   'd'
+0005E4 EC?? F???      00827     CALL    transmit
+0005E8 6AE8           00828     CLRF    WREG
+0005EA 0E65           00829     MOVLW   'e'
+0005EC EC?? F???      00830     CALL    transmit
+0005F0 6AE8           00831     CLRF    WREG
+0005F2 0E2E           00832     MOVLW   '.'
+0005F4 EC?? F???      00833     CALL    transmit
+0005F8 6AE8           00834     CLRF    WREG
+0005FA 0E2E           00835     MOVLW   '.'
+0005FC EC?? F???      00836     CALL    transmit
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 17
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000600 6AE8           00837     CLRF    WREG
+000602 0E2E           00838     MOVLW   '.'
+000604 EC?? F???      00839     CALL    transmit
+000608 6AE8           00840     CLRF    WREG
+00060A 0E0D           00841     MOVLW   B'00001101'
+00060C EC?? F???      00842     CALL    transmit
+000610 6AE8           00843     CLRF    WREG
+000612 0E28           00844     MOVLW   '('
+000614 EC?? F???      00845     CALL    transmit
+000618 6AE8           00846     CLRF    WREG
+00061A 0E50           00847     MOVLW   'P'
+00061C EC?? F???      00848     CALL    transmit
+000620 6AE8           00849     CLRF    WREG
+000622 0E29           00850     MOVLW   ')'
+000624 EC?? F???      00851     CALL    transmit
+000628 6AE8           00852     CLRF    WREG
+00062A 0E72           00853     MOVLW   'r'
+00062C EC?? F???      00854     CALL    transmit
+000630 6AE8           00855     CLRF    WREG
+000632 0E6F           00856     MOVLW   'o'
+000634 EC?? F???      00857     CALL    transmit
+000638 6AE8           00858     CLRF    WREG
+00063A 0E67           00859     MOVLW   'g'
+00063C EC?? F???      00860     CALL    transmit
+000640 6AE8           00861     CLRF    WREG
+000642 0E72           00862     MOVLW   'r'
+000644 EC?? F???      00863     CALL    transmit
+000648 6AE8           00864     CLRF    WREG
+00064A 0E61           00865     MOVLW   'a'
+00064C EC?? F???      00866     CALL    transmit
+000650 6AE8           00867     CLRF    WREG
+000652 0E6D           00868     MOVLW   'm'
+000654 EC?? F???      00869     CALL    transmit
+000658 6AE8           00870     CLRF    WREG
+00065A 0E0D           00871     MOVLW   B'00001101'
+00065C EC?? F???      00872     CALL    transmit
+000660 6AE8           00873     CLRF    WREG
+000662 0E28           00874     MOVLW   '('
+000664 EC?? F???      00875     CALL    transmit
+000668 6AE8           00876     CLRF    WREG
+00066A 0E46           00877     MOVLW   'F'
+00066C EC?? F???      00878     CALL    transmit
+000670 6AE8           00879     CLRF    WREG
+000672 0E29           00880     MOVLW   ')'
+000674 EC?? F???      00881     CALL    transmit
+000678 6AE8           00882     CLRF    WREG
+00067A 0E30           00883     MOVLW   '0'
+00067C EC?? F???      00884     CALL    transmit
+000680 6AE8           00885     CLRF    WREG
+000682 0E6C           00886     MOVLW   'l'
+000684 EC?? F???      00887     CALL    transmit
+000688 6AE8           00888     CLRF    WREG
+00068A 0E6C           00889     MOVLW   'l'
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 18
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00068C EC?? F???      00890     CALL    transmit
+000690 6AE8           00891     CLRF    WREG
+000692 0E6F           00892     MOVLW   'o'
+000694 EC?? F???      00893     CALL    transmit
+000698 6AE8           00894     CLRF    WREG
+00069A 0E77           00895     MOVLW   'w'
+00069C EC?? F???      00896     CALL    transmit
+0006A0 6AE8           00897     CLRF    WREG
+0006A2 0E20           00898     MOVLW   B'00100000'
+0006A4 EC?? F???      00899     CALL    transmit
+0006A8 6AE8           00900     CLRF    WREG
+0006AA 0E63           00901     MOVLW   'c'
+0006AC EC?? F???      00902     CALL    transmit
+0006B0 6AE8           00903     CLRF    WREG
+0006B2 0E6F           00904     MOVLW   'o'
+0006B4 EC?? F???      00905     CALL    transmit
+0006B8 6AE8           00906     CLRF    WREG
+0006BA 0E6C           00907     MOVLW   'l'
+0006BC EC?? F???      00908     CALL    transmit
+0006C0 6AE8           00909     CLRF    WREG
+0006C2 0E6F           00910     MOVLW   'o'
+0006C4 EC?? F???      00911     CALL    transmit
+0006C8 6AE8           00912     CLRF    WREG
+0006CA 0E75           00913     MOVLW   'u'
+0006CC EC?? F???      00914     CALL    transmit
+0006D0 6AE8           00915     CLRF    WREG
+0006D2 0E72           00916     MOVLW   'r'
+0006D4 EC?? F???      00917     CALL    transmit
+0006D8 6AE8           00918     CLRF    WREG
+0006DA 0E0D           00919     MOVLW   B'00001101'
+0006DC EC?? F???      00920     CALL    transmit
+0006E0 6AE8           00921     CLRF    WREG
+0006E2 0E28           00922     MOVLW   '('
+0006E4 EC?? F???      00923     CALL    transmit
+0006E8 6AE8           00924     CLRF    WREG
+0006EA 0E43           00925     MOVLW   'C'
+0006EC EC?? F???      00926     CALL    transmit
+0006F0 6AE8           00927     CLRF    WREG
+0006F2 0E29           00928     MOVLW   ')'
+0006F4 EC?? F???      00929     CALL    transmit
+0006F8 6AE8           00930     CLRF    WREG
+0006FA 0E61           00931     MOVLW   'a'
+0006FC EC?? F???      00932     CALL    transmit
+000700 6AE8           00933     CLRF    WREG
+000702 0E6C           00934     MOVLW   'l'
+000704 EC?? F???      00935     CALL    transmit
+000708 6AE8           00936     CLRF    WREG
+00070A 0E69           00937     MOVLW   'i'
+00070C EC?? F???      00938     CALL    transmit
+000710 6AE8           00939     CLRF    WREG
+000712 0E62           00940     MOVLW   'b'
+000714 EC?? F???      00941     CALL    transmit
+000718 6AE8           00942     CLRF    WREG
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 19
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+00071A 0E72           00943     MOVLW   'r'
+00071C EC?? F???      00944     CALL    transmit
+000720 6AE8           00945     CLRF    WREG
+000722 0E61           00946     MOVLW   'a'
+000724 EC?? F???      00947     CALL    transmit
+000728 6AE8           00948     CLRF    WREG
+00072A 0E74           00949     MOVLW   't'
+00072C EC?? F???      00950     CALL    transmit
+000730 6AE8           00951     CLRF    WREG
+000732 0E65           00952     MOVLW   'e'
+000734 EC?? F???      00953     CALL    transmit
+000738 6AE8           00954     CLRF    WREG
+00073A 0E0D           00955     MOVLW   B'00001101'
+00073C EC?? F???      00956     CALL    transmit
+000740 6AE8           00957     CLRF    WREG
+000742 0E28           00958     MOVLW   '('
+000744 EC?? F???      00959     CALL    transmit
+000748 6AE8           00960     CLRF    WREG
+00074A 0E52           00961     MOVLW   'R'
+00074C EC?? F???      00962     CALL    transmit
+000750 6AE8           00963     CLRF    WREG
+000752 0E29           00964     MOVLW   ')'
+000754 EC?? F???      00965     CALL    transmit
+000758 6AE8           00966     CLRF    WREG
+00075A 0E61           00967     MOVLW   'a'
+00075C EC?? F???      00968     CALL    transmit
+000760 6AE8           00969     CLRF    WREG
+000762 0E63           00970     MOVLW   'c'
+000764 EC?? F???      00971     CALL    transmit
+000768 6AE8           00972     CLRF    WREG
+00076A 0E65           00973     MOVLW   'e'
+00076C EC?? F???      00974     CALL    transmit
+000770 6AE8           00975     CLRF    WREG
+000772 0E0D           00976     MOVLW   B'00001101'
+000774 EC?? F???      00977     CALL    transmit
+000778 6AE8           00978     CLRF    WREG
+00077A 0E28           00979     MOVLW   '('
+00077C EC?? F???      00980     CALL    transmit
+000780 6AE8           00981     CLRF    WREG
+000782 0E54           00982     MOVLW   'T'
+000784 EC?? F???      00983     CALL    transmit
+000788 6AE8           00984     CLRF    WREG
+00078A 0E29           00985     MOVLW   ')'
+00078C EC?? F???      00986     CALL    transmit
+000790 6AE8           00987     CLRF    WREG
+000792 0E69           00988     MOVLW   'i'
+000794 EC?? F???      00989     CALL    transmit
+000798 6AE8           00990     CLRF    WREG
+00079A 0E6D           00991     MOVLW   'm'
+00079C EC?? F???      00992     CALL    transmit
+0007A0 6AE8           00993     CLRF    WREG
+0007A2 0E65           00994     MOVLW   'e'
+0007A4 EC?? F???      00995     CALL    transmit
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 20
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0007A8 6AE8           00996     CLRF    WREG
+0007AA 0E0D           00997     MOVLW   B'00001101'
+0007AC EC?? F???      00998     CALL    transmit
+                      00999 
+0007B0 0012           01000     RETURN
+                      01001 ;</editor-fold>
+                      01002 ;<editor-fold defaultstate="collapsed" desc=""P<Enter>" Check">
+0007B2                01003 check_p
+0007B2 A228           01004     BTFSS   word_checkH,1
+0007B4 EF?? F???      01005     GOTO    test_P_p
+0007B8 A028           01006     BTFSS   word_checkH,0
+0007BA EF?? F???      01007     GOTO    test_enter_p
+                      01008     
+                      01009     
+                      01010     
+0007BE                01011 test_P_p
+0007BE 9026           01012     BCF     bit_received,0
+0007C0 CFE8 F027      01013     MOVFF   WREG,letter
+0007C4 0E50           01014     MOVLW   'P'
+0007C6 6227           01015     CPFSEQ  letter
+0007C8 0012           01016     RETURN
+0007CA 8228           01017     BSF     word_checkH,1
+0007CC 0012           01018     RETURN
+                      01019 
+0007CE                01020 test_enter_p
+0007CE 9026           01021     BCF     bit_received,0
+0007D0 CFE8 F027      01022     MOVFF   WREG,letter
+0007D4 0E0D           01023     MOVLW   B'00001101'
+0007D6 6227           01024     CPFSEQ  letter
+0007D8 EF?? F???      01025     GOTO    clear_word
+0007DC 8425           01026     BSF     state,program
+0007DE 8028           01027     BSF     word_checkH,0
+0007E0 9225           01028     BCF     state,menu
+0007E2 0012           01029     RETURN
+                      01030 ;</editor-fold> 
+                      01031 ;<editor-fold defaultstate="collapsed" desc=""F<Enter>" Check">
+0007E4                01032 check_f
+0007E4 AE29           01033     BTFSS   word_checkL,7
+0007E6 EF?? F???      01034     GOTO    test_F_f
+0007EA AC29           01035     BTFSS   word_checkL,6
+0007EC EF?? F???      01036     GOTO    test_enter_f
+                      01037     
+0007F0                01038 test_F_f
+0007F0 9026           01039     BCF     bit_received,0
+0007F2 CFE8 F027      01040     MOVFF   WREG,letter
+0007F6 0E46           01041     MOVLW   'F'
+0007F8 6227           01042     CPFSEQ  letter
+0007FA 0012           01043     RETURN
+0007FC 8E29           01044     BSF     word_checkL,7
+0007FE 0012           01045     RETURN
+                      01046 
+000800                01047 test_enter_f
+000800 9026           01048     BCF     bit_received,0
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 21
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000802 CFE8 F027      01049     MOVFF   WREG,letter
+000806 0E0D           01050     MOVLW   B'00001101'
+000808 6227           01051     CPFSEQ  letter
+00080A EF?? F???      01052     GOTO    clear_word
+00080E 8625           01053     BSF     state,follow_colour
+000810 8C29           01054     BSF     word_checkL,6
+000812 9225           01055     BCF     state,menu
+000814 0012           01056     RETURN
+                      01057 ;</editor-fold> 
+                      01058 ;<editor-fold defaultstate="collapsed" desc=""C<Enter>" Check">
+000816                01059 check_c
+000816 AA29           01060     BTFSS   word_checkL,5
+000818 EF?? F???      01061     GOTO    test_C_c
+00081C A829           01062     BTFSS   word_checkL,4
+00081E EF?? F???      01063     GOTO    test_enter_c
+                      01064     
+000822                01065 test_C_c
+000822 9026           01066     BCF     bit_received,0
+000824 CFE8 F027      01067     MOVFF   WREG,letter
+000828 0E43           01068     MOVLW   'C'
+00082A 6227           01069     CPFSEQ  letter
+00082C 0012           01070     RETURN
+00082E 8A29           01071     BSF     word_checkL,5
+000830 0012           01072     RETURN
+                      01073 
+000832                01074 test_enter_c
+000832 9026           01075     BCF     bit_received,0
+000834 CFE8 F027      01076     MOVFF   WREG,letter
+000838 0E0D           01077     MOVLW   B'00001101'
+00083A 6227           01078     CPFSEQ  letter
+00083C EF?? F???      01079     GOTO    clear_word
+000840 8825           01080     BSF     state,calibrate
+000842 8829           01081     BSF     word_checkL,4
+000844 9225           01082     BCF     state,menu
+000846 0012           01083     RETURN
+                      01084 ;</editor-fold> 
+                      01085 ;<editor-fold defaultstate="collapsed" desc=""R<Enter>" Check">
+000848                01086 check_r
+000848 A629           01087     BTFSS   word_checkL,3
+00084A EF?? F???      01088     GOTO    test_R_r
+00084E A429           01089     BTFSS   word_checkL,2
+000850 EF?? F???      01090     GOTO    test_enter_r
+                      01091     
+000854                01092 test_R_r
+000854 9026           01093     BCF     bit_received,0
+000856 CFE8 F027      01094     MOVFF   WREG,letter
+00085A 0E52           01095     MOVLW   'R'
+00085C 6227           01096     CPFSEQ  letter
+00085E 0012           01097     RETURN
+000860 8629           01098     BSF     word_checkL,3
+000862 0012           01099     RETURN
+                      01100 
+000864                01101 test_enter_r
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 22
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000864 9026           01102     BCF     bit_received,0
+000866 CFE8 F027      01103     MOVFF   WREG,letter
+00086A 0E0D           01104     MOVLW   B'00001101'
+00086C 6227           01105     CPFSEQ  letter
+00086E EF?? F???      01106     GOTO    clear_word
+000872 8A25           01107     BSF     state,race
+000874 8429           01108     BSF     word_checkL,2
+000876 9225           01109     BCF     state,menu
+000878 0012           01110     RETURN
+                      01111 ;</editor-fold>
+                      01112 ;<editor-fold defaultstate="collapsed" desc=""T<Enter>" Check">
+00087A                01113 check_t
+00087A A229           01114     BTFSS   word_checkL,1
+00087C EF?? F???      01115     GOTO    test_T_t
+000880 A029           01116     BTFSS   word_checkL,0
+000882 EF?? F???      01117     GOTO    test_enter_t
+                      01118     
+000886                01119 test_T_t
+000886 9026           01120     BCF     bit_received,0
+000888 CFE8 F027      01121     MOVFF   WREG,letter
+00088C 0E54           01122     MOVLW   'T'
+00088E 6227           01123     CPFSEQ  letter
+000890 0012           01124     RETURN
+000892 8229           01125     BSF     word_checkL,1
+000894 0012           01126     RETURN
+                      01127 
+000896                01128 test_enter_t
+000896 9026           01129     BCF     bit_received,0
+000898 CFE8 F027      01130     MOVFF   WREG,letter
+00089C 0E0D           01131     MOVLW   B'00001101'
+00089E 6227           01132     CPFSEQ  letter
+0008A0 EF?? F???      01133     GOTO    clear_word
+0008A4 8E25           01134     BSF     state,time
+0008A6 8029           01135     BSF     word_checkL,0
+0008A8 9225           01136     BCF     state,menu
+0008AA 0012           01137     RETURN
+                      01138 ;</editor-fold>
+                      01139 ;<editor-fold defaultstate="collapsed" desc=""<Enter>" check">
+0008AC                01140 check_enter
+0008AC 9026           01141     BCF     bit_received,0
+0008AE CFE8 F027      01142     MOVFF   WREG,letter
+0008B2 0E0D           01143     MOVLW   B'00001101'
+0008B4 6227           01144     CPFSEQ  letter
+0008B6 0012           01145     RETURN
+0008B8 8225           01146     BSF     state,menu
+0008BA 9425           01147     BCF     state,program
+0008BC 8029           01148     BSF     word_checkL,0
+0008BE 0012           01149     RETURN
+                      01150 ;</editor-fold>
+                      01151 ;<editor-fold defaultstate="collapsed" desc=""R" Check">
+0008C0                01152 check_col_r
+0008C0 AE28           01153     BTFSS   word_checkH,7
+0008C2 EF?? F???      01154     GOTO    test_col_r
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 23
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0008C6 AC28           01155     BTFSS   word_checkH,6
+0008C8 EF?? F???      01156     GOTO    test_enter_col_r
+                      01157     
+0008CC                01158 test_col_r
+0008CC 9026           01159     BCF     bit_received,0
+0008CE CFE8 F027      01160     MOVFF   WREG,letter
+0008D2 0E52           01161     MOVLW   'R'
+0008D4 6227           01162     CPFSEQ  letter
+0008D6 0012           01163     RETURN
+0008D8 8E28           01164     BSF     word_checkH,7
+0008DA 0012           01165     RETURN
+                      01166 
+0008DC                01167 test_enter_col_r
+0008DC 9026           01168     BCF     bit_received,0
+0008DE CFE8 F027      01169     MOVFF   WREG,letter
+0008E2 0E0D           01170     MOVLW   B'00001101'
+0008E4 6227           01171     CPFSEQ  letter
+0008E6 EF?? F???      01172     GOTO    clear_word
+0008EA 8225           01173     BSF     state,menu
+0008EC 8C28           01174     BSF     word_checkH,6
+0008EE 862A           01175     BSF     race_col,red
+0008F0 0012           01176     RETURN
+                      01177 ;</editor-fold>
+                      01178 ;<editor-fold defaultstate="collapsed" desc=""G" Check">
+0008F2                01179 check_col_g
+0008F2 AA28           01180     BTFSS   word_checkH,5
+0008F4 EF?? F???      01181     GOTO    test_col_g
+0008F8 A828           01182     BTFSS   word_checkH,4
+0008FA EF?? F???      01183     GOTO    test_enter_col_g
+                      01184     
+0008FE                01185 test_col_g
+0008FE 9026           01186     BCF     bit_received,0
+000900 CFE8 F027      01187     MOVFF   WREG,letter
+000904 0E47           01188     MOVLW   'G'
+000906 6227           01189     CPFSEQ  letter
+000908 0012           01190     RETURN
+00090A 8A28           01191     BSF     word_checkH,5
+00090C 0012           01192     RETURN
+                      01193 
+00090E                01194 test_enter_col_g
+00090E 9026           01195     BCF     bit_received,0
+000910 CFE8 F027      01196     MOVFF   WREG,letter
+000914 0E0D           01197     MOVLW   B'00001101'
+000916 6227           01198     CPFSEQ  letter
+000918 EF?? F???      01199     GOTO    clear_word
+00091C 8225           01200     BSF     state,menu
+00091E 8828           01201     BSF     word_checkH,4
+000920 842A           01202     BSF     race_col,green
+000922 0012           01203     RETURN
+                      01204 ;</editor-fold>  
+                      01205 ;<editor-fold defaultstate="collapsed" desc=""B" Check">
+000924                01206 check_col_b
+000924 A628           01207     BTFSS   word_checkH,3
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 24
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000926 EF?? F???      01208     GOTO    test_col_b
+00092A A428           01209     BTFSS   word_checkH,2
+00092C EF?? F???      01210     GOTO    test_enter_col_b
+                      01211     
+000930                01212 test_col_b
+000930 9026           01213     BCF     bit_received,0
+000932 CFE8 F027      01214     MOVFF   WREG,letter
+000936 0E42           01215     MOVLW   'B'
+000938 6227           01216     CPFSEQ  letter
+00093A 0012           01217     RETURN
+00093C 8628           01218     BSF     word_checkH,3
+00093E 0012           01219     RETURN
+                      01220 
+000940                01221 test_enter_col_b
+000940 9026           01222     BCF     bit_received,0
+000942 CFE8 F027      01223     MOVFF   WREG,letter
+000946 0E0D           01224     MOVLW   B'00001101'
+000948 6227           01225     CPFSEQ  letter
+00094A EF?? F???      01226     GOTO    clear_word
+00094E 8225           01227     BSF     state,menu
+000950 8428           01228     BSF     word_checkH,2
+000952 822A           01229     BSF     race_col,blue
+000954 0012           01230     RETURN
+                      01231 ;</editor-fold>
+                      01232 ;<editor-fold defaultstate="collapsed" desc=""n" Check">
+000956                01233 check_col_n
+000956 A228           01234     BTFSS   word_checkH,1
+000958 EF?? F???      01235     GOTO    test_col_n
+00095C A028           01236     BTFSS   word_checkH,0
+00095E EF?? F???      01237     GOTO    test_enter_col_n
+                      01238     
+000962                01239 test_col_n
+000962 9026           01240     BCF     bit_received,0
+000964 CFE8 F027      01241     MOVFF   WREG,letter
+000968 0E6E           01242     MOVLW   'n'
+00096A 6227           01243     CPFSEQ  letter
+00096C 0012           01244     RETURN
+00096E 8228           01245     BSF     word_checkH,1
+000970 0012           01246     RETURN
+                      01247 
+000972                01248 test_enter_col_n
+000972 9026           01249     BCF     bit_received,0
+000974 CFE8 F027      01250     MOVFF   WREG,letter
+000978 0E0D           01251     MOVLW   B'00001101'
+00097A 6227           01252     CPFSEQ  letter
+00097C EF?? F???      01253     GOTO    clear_word
+000980 8225           01254     BSF     state,menu
+000982 8028           01255     BSF     word_checkH,0
+000984 802A           01256     BSF     race_col,black
+000986 0012           01257     RETURN
+                      01258 ;</editor-fold> 
+                      01259 ;<editor-fold defaultstate="collapsed" desc="Delay 10ms">
+000988                01260 delay_10ms
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 25
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+000988 0E0F           01261     MOVLW       D'15'
+00098A 6E23           01262     MOVWF       count1_10ms
+                      01263     
+00098C                01264 loop1_10ms
+00098C 0EFF           01265     MOVLW       D'255'
+00098E 6E24           01266     MOVWF       count2_10ms
+000990 2E23           01267     DECFSZ      count1_10ms
+000992 EF?? F???      01268     GOTO        loop2_10ms
+000996 EF?? F???      01269     GOTO        delay_10ms_end
+                      01270         
+                      01271         
+00099A                01272 loop2_10ms
+00099A 2E24           01273     DECFSZ      count2_10ms
+00099C EF?? F???      01274     GOTO        loop2_10ms
+0009A0 EF?? F???      01275     GOTO        loop1_10ms
+                      01276         
+0009A4                01277 delay_10ms_end
+0009A4 0012           01278     RETURN
+                      01279 ;</editor-fold>
+                      01280 ;<editor-fold defaultstate="collapsed" desc="Delay 333ms">
+0009A6                01281 delay_loop_333
+0009A6 0EFF           01282     MOVLW       D'255'
+0009A8 6E2C           01283     MOVWF       outer_loop_333          
+0009AA                01284 go_on_1_333                             
+0009AA 0ED8           01285     MOVLW       D'216'
+0009AC 6E2D           01286     MOVWF       inner_loop_333
+0009AE                01287 go_on_2_333
+0009AE 2E2D           01288     DECFSZ      inner_loop_333,F        
+0009B0 EF?? F???      01289     GOTO        go_on_2_333
+0009B4 2E2C           01290     DECFSZ      outer_loop_333,F
+0009B6 EF?? F???      01291     GOTO        go_on_1_333
+0009BA 0012           01292     RETURN
+                      01293 ;</editor-fold>
+                      01294 ;========== Interrupt service routines ==========
+                      01295 ;<editor-fold defaultstate="collapsed" desc="ISR Handler">
+0009BC                01296 ISR_handler     ;GIE = '0'
+0009BC B020           01297     BTFSC       ISR_reg,flash_333ms_isr
+0009BE EF?? F???      01298     GOTO        flash_333ms
+0009C2 AA9E           01299     BTFSS       PIR1,RC1IF              ;polls for reccieved data
+0009C4 D???           01300     BRA         $-2
+0009C6 EF?? F???      01301     GOTO        receive
+0009CA 0010           01302     RETFIE
+                      01303 ;</editor-fold>
+                      01304 ;<editor-fold defaultstate="collapsed" desc="333ms Flashing ISR">
+0009CC                01305 flash_333ms
+0009CC 8020           01306     BSF         ISR_reg,flash_333ms_isr
+0009CE 0010           01307     RETFIE      ;GIE = '1'
+                      01308 ;</editor-fold>
+                      01309 ;<editor-fold defaultstate="collapsed" desc="Serial Reception">
+0009D0                01310 receive                                 ;GIE = '0'
+0009D0 8026           01311     BSF         bit_received,0
+0009D2 AA9E           01312     BTFSS       PIR1,RC1IF              ;interrput handler
+0009D4 D???           01313     BRA         $-2
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 26
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
+0009D6 CFAE FFE8      01314     MOVFF       RCREG1,WREG
+0009DA EC?? F???      01315     CALL        transmit
+                      01316     
+0009DE 0010           01317     RETFIE                              ;GIE = '1'
+                      01318 ;</editor-fold>
+                      01319 ;========== Tables ==========
+                      01320 ;<editor-fold defaultstate="collapsed" desc="Vrooom!">
+0009E0                01321 vrooom_table
+0009E0 26F9           01322     ADDWF   PCL
+0009E2 0C56           01323     RETLW   B'01010110';V 0d0
+0009E4 0C72           01324     RETLW   B'01110010';r 0d2
+0009E6 0C6F           01325     RETLW   B'01101111';o 0d4
+0009E8 0C6F           01326     RETLW   B'01101111';o 0d6
+0009EA 0C6F           01327     RETLW   B'01101111';o 0d8
+0009EC 0C6D           01328     RETLW   B'01101101';m 0d10
+0009EE 0C21           01329     RETLW   B'00100001';! 0d12
+                      01330 ;</editor-fold>
+                      01331 
+                      01332     end
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 27
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+A                                 00000000
+ABDEN                             00000000
+ABDOVF                            00000007
+ACCESS                            00000000
+ACKDT                             00000005
+ACKEN                             00000004
+ACKSTAT                           00000006
+ACKTIM                            00000007
+ACQT0                             00000003
+ACQT1                             00000004
+ACQT2                             00000005
+ADCMD                             00000000
+ADCON0                            00000FC2
+ADCON1                            00000FC1
+ADCON2                            00000FC0
+ADCS0                             00000000
+ADCS1                             00000001
+ADCS2                             00000002
+ADDEN                             00000003
+ADDEN1                            00000003
+ADDEN2                            00000003
+ADEN                              00000003
+ADFM                              00000007
+ADIE                              00000006
+ADIF                              00000006
+ADIP                              00000006
+ADON                              00000000
+ADRES                             00000FC3
+ADRESH                            00000FC4
+ADRESL                            00000FC3
+AHEN                              00000001
+AN0                               00000000
+AN1                               00000001
+AN10                              00000001
+AN11                              00000004
+AN12                              00000000
+AN13                              00000005
+AN14                              00000002
+AN15                              00000003
+AN16                              00000004
+AN17                              00000005
+AN18                              00000006
+AN19                              00000007
+AN2                               00000002
+AN20                              00000000
+AN21                              00000001
+AN22                              00000002
+AN23                              00000003
+AN24                              00000004
+AN25                              00000005
+AN26                              00000006
+AN27                              00000007
+AN3                               00000003
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 28
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+AN4                               00000005
+AN5                               00000000
+AN6                               00000001
+AN7                               00000002
+AN8                               00000002
+AN9                               00000003
+ANSA0                             00000000
+ANSA1                             00000001
+ANSA2                             00000002
+ANSA3                             00000003
+ANSA5                             00000005
+ANSB0                             00000000
+ANSB1                             00000001
+ANSB2                             00000002
+ANSB3                             00000003
+ANSB4                             00000004
+ANSB5                             00000005
+ANSC2                             00000002
+ANSC3                             00000003
+ANSC4                             00000004
+ANSC5                             00000005
+ANSC6                             00000006
+ANSC7                             00000007
+ANSD0                             00000000
+ANSD1                             00000001
+ANSD2                             00000002
+ANSD3                             00000003
+ANSD4                             00000004
+ANSD5                             00000005
+ANSD6                             00000006
+ANSD7                             00000007
+ANSE0                             00000000
+ANSE1                             00000001
+ANSE2                             00000002
+ANSELA                            00000F38
+ANSELB                            00000F39
+ANSELC                            00000F3A
+ANSELD                            00000F3B
+ANSELE                            00000F3C
+BANKED                            00000001
+BAUD1CON                          00000FB8
+BAUD2CON                          00000F70
+BAUDCON                           00000FB8
+BAUDCON1                          00000FB8
+BAUDCON2                          00000F70
+BAUDCTL                           00000FB8
+BCL1IE                            00000003
+BCL1IF                            00000003
+BCL1IP                            00000003
+BCL2IE                            00000006
+BCL2IF                            00000006
+BCL2IP                            00000006
+BCLIE                             00000003
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 29
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+BCLIF                             00000003
+BCLIP                             00000003
+BF                                00000000
+BGST                              00000005
+BGVST                             00000006
+BOEN                              00000004
+BOR                               00000000
+BRG16                             00000003
+BRGH                              00000002
+BRGH1                             00000002
+BRGH2                             00000002
+BSR                               00000FE0
+C                                 00000000
+C12IN0M                           00000000
+C12IN0N                           00000000
+C12IN1M                           00000001
+C12IN1N                           00000001
+C12IN2M                           00000003
+C12IN2N                           00000003
+C12IN3M                           00000001
+C12IN3N                           00000001
+C1CH0                             00000000
+C1CH1                             00000001
+C1HYS                             00000003
+C1IE                              00000006
+C1IF                              00000006
+C1INP                             00000003
+C1IP                              00000006
+C1OE                              00000005
+C1ON                              00000007
+C1OUT_CM1CON                      00000006
+C1OUT_CM1CON0                     00000006
+C1OUT_PORTA                       00000004
+C1POL                             00000004
+C1R                               00000002
+C1RSEL                            00000005
+C1SP                              00000003
+C1SYNC                            00000001
+C1TSEL0                           00000000
+C1TSEL1                           00000001
+C2CH0                             00000000
+C2CH1                             00000001
+C2HYS                             00000002
+C2IE                              00000005
+C2IF                              00000005
+C2INP                             00000002
+C2IP                              00000005
+C2OE                              00000005
+C2ON                              00000007
+C2OUT_CM2CON                      00000006
+C2OUT_CM2CON0                     00000006
+C2OUT_PORTA                       00000005
+C2POL                             00000004
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 30
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+C2R                               00000002
+C2RSEL                            00000004
+C2SP                              00000003
+C2SYNC                            00000000
+C2TSEL0                           00000003
+C2TSEL1                           00000004
+C3TSEL0                           00000006
+C3TSEL1                           00000007
+C4TSEL0                           00000000
+C4TSEL1                           00000001
+C5TSEL0                           00000002
+C5TSEL1                           00000003
+CCP1                              00000002
+CCP1AS0                           00000004
+CCP1AS1                           00000005
+CCP1AS2                           00000006
+CCP1ASE                           00000007
+CCP1CON                           00000FBD
+CCP1IE                            00000002
+CCP1IF                            00000002
+CCP1IP                            00000002
+CCP1M0                            00000000
+CCP1M1                            00000001
+CCP1M2                            00000002
+CCP1M3                            00000003
+CCP1MD                            00000000
+CCP2AS                            00000F64
+CCP2AS0                           00000004
+CCP2AS1                           00000005
+CCP2AS2                           00000006
+CCP2ASE                           00000007
+CCP2CON                           00000F66
+CCP2IE                            00000000
+CCP2IF                            00000000
+CCP2IP                            00000000
+CCP2M0                            00000000
+CCP2M1                            00000001
+CCP2M2                            00000002
+CCP2M3                            00000003
+CCP2MD                            00000001
+CCP2_PORTB                        00000003
+CCP2_PORTC                        00000001
+CCP3AS                            00000F5B
+CCP3AS0                           00000004
+CCP3AS1                           00000005
+CCP3AS2                           00000006
+CCP3ASE                           00000007
+CCP3CON                           00000F5D
+CCP3IE                            00000000
+CCP3IF                            00000000
+CCP3IP                            00000000
+CCP3M0                            00000000
+CCP3M1                            00000001
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 31
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CCP3M2                            00000002
+CCP3M3                            00000003
+CCP3MD                            00000002
+CCP3_PORTB                        00000005
+CCP3_PORTE                        00000000
+CCP4                              00000001
+CCP4CON                           00000F57
+CCP4IE                            00000001
+CCP4IF                            00000001
+CCP4IP                            00000001
+CCP4M0                            00000000
+CCP4M1                            00000001
+CCP4M2                            00000002
+CCP4M3                            00000003
+CCP4MD                            00000003
+CCP5                              00000002
+CCP5CON                           00000F54
+CCP5IE                            00000002
+CCP5IF                            00000002
+CCP5IP                            00000002
+CCP5M0                            00000000
+CCP5M1                            00000001
+CCP5M2                            00000002
+CCP5M3                            00000003
+CCP5MD                            00000004
+CCPR1                             00000FBE
+CCPR1H                            00000FBF
+CCPR1L                            00000FBE
+CCPR2                             00000F67
+CCPR2H                            00000F68
+CCPR2L                            00000F67
+CCPR3                             00000F5E
+CCPR3H                            00000F5F
+CCPR3L                            00000F5E
+CCPR4                             00000F58
+CCPR4H                            00000F59
+CCPR4L                            00000F58
+CCPR5                             00000F55
+CCPR5H                            00000F56
+CCPR5L                            00000F55
+CCPTMRS0                          00000F49
+CCPTMRS1                          00000F48
+CFGS                              00000006
+CHS0                              00000002
+CHS1                              00000003
+CHS2                              00000004
+CHS3                              00000005
+CHS4                              00000006
+CK                                00000006
+CK1                               00000006
+CK2                               00000006
+CKE                               00000006
+CKP                               00000004
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 32
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+CKTXP                             00000004
+CM12CON                           00000F77
+CM1CON                            00000F79
+CM1CON0                           00000F79
+CM2CON                            00000F78
+CM2CON0                           00000F78
+CM2CON1                           00000F77
+CMP1MD                            00000001
+CMP2MD                            00000002
+CREN                              00000004
+CREN1                             00000004
+CREN2                             00000004
+CSRC                              00000007
+CSRC1                             00000007
+CSRC2                             00000007
+CTED1                             00000002
+CTED2                             00000003
+CTMUCON0                          00000F45
+CTMUCON1                          00000F44
+CTMUCONH                          00000F45
+CTMUCONL                          00000F44
+CTMUEN                            00000007
+CTMUICON                          00000F43
+CTMUICONH                         00000F43
+CTMUIE                            00000003
+CTMUIF                            00000003
+CTMUIP                            00000003
+CTMUMD                            00000003
+CTMUSIDL                          00000005
+CTPLS                             00000002
+CTTRIG                            00000000
+CVREF                             00000002
+D                                 00000005
+DACCON0                           00000F41
+DACCON1                           00000F40
+DACEN                             00000007
+DACLPS                            00000006
+DACNSS                            00000000
+DACOE                             00000005
+DACOUT                            00000002
+DACPSS0                           00000002
+DACPSS1                           00000003
+DACR0                             00000000
+DACR1                             00000001
+DACR2                             00000002
+DACR3                             00000003
+DACR4                             00000004
+DC                                00000001
+DC1B0                             00000004
+DC1B1                             00000005
+DC2B0                             00000004
+DC2B1                             00000005
+DC3B0                             00000004
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 33
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+DC3B1                             00000005
+DC4B0                             00000004
+DC4B1                             00000005
+DC5B0                             00000004
+DC5B1                             00000005
+DDRA                              TRISA
+DDRB                              TRISB
+DDRC                              TRISC
+DDRD                              TRISD
+DDRE                              TRISE
+DHEN                              00000000
+DONE                              00000001
+DT1                               00000007
+DT2                               00000007
+DTRXP                             00000005
+D_A                               00000005
+D_NOT_A                           00000005
+ECCP1AS                           00000FB6
+ECCP2AS                           00000F64
+ECCP3AS                           00000F5B
+ECCPAS                            00000FB6
+ECCPAS0                           00000004
+ECCPAS1                           00000005
+ECCPAS2                           00000006
+ECCPASE                           00000007
+EDG1POL                           00000004
+EDG1SEL0                          00000002
+EDG1SEL1                          00000003
+EDG1STAT                          00000000
+EDG2POL                           00000007
+EDG2SEL0                          00000005
+EDG2SEL1                          00000006
+EDG2STAT                          00000001
+EDGEN                             00000003
+EDGSEQEN                          00000002
+EEADR                             00000FA9
+EEADR0                            00000000
+EEADR1                            00000001
+EEADR2                            00000002
+EEADR3                            00000003
+EEADR4                            00000004
+EEADR5                            00000005
+EEADR6                            00000006
+EEADR7                            00000007
+EECON1                            00000FA6
+EECON2                            00000FA7
+EEDATA                            00000FA8
+EEIE                              00000004
+EEIF                              00000004
+EEIP                              00000004
+EEPGD                             00000007
+FAST                              00000001
+FERR                              00000002
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 34
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+FERR1                             00000002
+FERR2                             00000002
+FLT0                              00000000
+FREE                              00000004
+FSR0                              00000000
+FSR0H                             00000FEA
+FSR0L                             00000FE9
+FSR1                              00000001
+FSR1H                             00000FE2
+FSR1L                             00000FE1
+FSR2                              00000002
+FSR2H                             00000FDA
+FSR2L                             00000FD9
+FVRCON                            00000F42
+FVREN                             00000007
+FVRS0                             00000004
+FVRS1                             00000005
+FVRST                             00000006
+GCEN                              00000007
+GIE                               00000007
+GIEH                              00000007
+GIEL                              00000006
+GIE_GIEH                          00000007
+GO                                00000001
+GO_DONE                           00000001
+GO_NOT_DONE                       00000001
+HFIOFS                            00000002
+HLVDCON                           00000F9C
+HLVDEN                            00000004
+HLVDIE                            00000002
+HLVDIF                            00000002
+HLVDIN                            00000005
+HLVDIP                            00000002
+HLVDL0                            00000000
+HLVDL1                            00000001
+HLVDL2                            00000002
+HLVDL3                            00000003
+IDISSEN                           00000001
+IDLEN                             00000007
+INDF0                             00000FEF
+INDF1                             00000FE7
+INDF2                             00000FDF
+INT0                              00000000
+INT0E                             00000004
+INT0F                             00000001
+INT0IE                            00000004
+INT0IF                            00000001
+INT1                              00000001
+INT1E                             00000003
+INT1F                             00000000
+INT1IE                            00000003
+INT1IF                            00000000
+INT1IP                            00000006
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 35
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+INT1P                             00000006
+INT2                              00000002
+INT2E                             00000004
+INT2F                             00000001
+INT2IE                            00000004
+INT2IF                            00000001
+INT2IP                            00000007
+INT2P                             00000007
+INTCON                            00000FF2
+INTCON2                           00000FF1
+INTCON3                           00000FF0
+INTEDG0                           00000006
+INTEDG1                           00000005
+INTEDG2                           00000004
+INTSRC                            00000007
+IOCB                              00000F62
+IOCB4                             00000004
+IOCB5                             00000005
+IOCB6                             00000006
+IOCB7                             00000007
+IOFS                              00000002
+IPEN                              00000007
+IPR1                              00000F9F
+IPR2                              00000FA2
+IPR3                              00000FA5
+IPR4                              00000F7C
+IPR5                              00000F7F
+IRCF0                             00000004
+IRCF1                             00000005
+IRCF2                             00000006
+IRNG0                             00000000
+IRNG1                             00000001
+IRVST                             00000005
+ISR_handler                       000009BC
+ISR_reg                           00000020
+ITRIM0                            00000002
+ITRIM1                            00000003
+ITRIM2                            00000004
+ITRIM3                            00000005
+ITRIM4                            00000006
+ITRIM5                            00000007
+IVRST                             00000005
+KBI0                              00000004
+KBI1                              00000005
+KBI2                              00000006
+KBI3                              00000007
+LATA                              00000F89
+LATA0                             00000000
+LATA1                             00000001
+LATA2                             00000002
+LATA3                             00000003
+LATA4                             00000004
+LATA5                             00000005
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 36
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+LATA6                             00000006
+LATA7                             00000007
+LATB                              00000F8A
+LATB0                             00000000
+LATB1                             00000001
+LATB2                             00000002
+LATB3                             00000003
+LATB4                             00000004
+LATB5                             00000005
+LATB6                             00000006
+LATB7                             00000007
+LATC                              00000F8B
+LATC0                             00000000
+LATC1                             00000001
+LATC2                             00000002
+LATC3                             00000003
+LATC4                             00000004
+LATC5                             00000005
+LATC6                             00000006
+LATC7                             00000007
+LATD                              00000F8C
+LATD0                             00000000
+LATD1                             00000001
+LATD2                             00000002
+LATD3                             00000003
+LATD4                             00000004
+LATD5                             00000005
+LATD6                             00000006
+LATD7                             00000007
+LATE                              00000F8D
+LATE0                             00000000
+LATE1                             00000001
+LATE2                             00000002
+LFIOFS                            00000000
+LVDCON                            00000F9C
+LVDEN                             00000004
+LVDIE                             00000002
+LVDIF                             00000002
+LVDIN                             00000005
+LVDIP                             00000002
+LVDL0                             00000000
+LVDL1                             00000001
+LVDL2                             00000002
+LVDL3                             00000003
+LVV0                              00000000
+LVV1                              00000001
+LVV2                              00000002
+LVV3                              00000003
+MC1OUT                            00000007
+MC2OUT                            00000006
+MCLR                              00000003
+MFIOFS                            00000001
+MFIOSEL                           00000004
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 37
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+MSK0                              00000000
+MSK1                              00000001
+MSK2                              00000002
+MSK3                              00000003
+MSK4                              00000004
+MSK5                              00000005
+MSK6                              00000006
+MSK7                              00000007
+MSSP1MD                           00000006
+MSSP2MD                           00000007
+N                                 00000004
+NOT_A                             00000005
+NOT_ADDRESS                       00000005
+NOT_BOR                           00000000
+NOT_DONE                          00000001
+NOT_MCLR                          00000003
+NOT_PD                            00000002
+NOT_POR                           00000001
+NOT_RBPU                          00000007
+NOT_RI                            00000004
+NOT_SS                            00000005
+NOT_SS1                           00000005
+NOT_SS2                           00000003
+NOT_T1SYNC                        00000002
+NOT_T3SYNC                        00000002
+NOT_T5SYNC                        00000002
+NOT_TO                            00000003
+NOT_W                             00000002
+NOT_WRITE                         00000002
+NVCFG0                            00000000
+NVCFG1                            00000001
+OERR                              00000001
+OERR1                             00000001
+OERR2                             00000001
+OSCCON                            00000FD3
+OSCCON2                           00000FD2
+OSCFIE                            00000007
+OSCFIF                            00000007
+OSCFIP                            00000007
+OSCTUNE                           00000F9B
+OSTS                              00000003
+OV                                00000003
+P                                 00000004
+P1A                               00000002
+P1B                               00000005
+P1C                               00000006
+P1D                               00000007
+P1DC0                             00000000
+P1DC1                             00000001
+P1DC2                             00000002
+P1DC3                             00000003
+P1DC4                             00000004
+P1DC5                             00000005
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 38
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+P1DC6                             00000006
+P1M0                              00000006
+P1M1                              00000007
+P1RSEN                            00000007
+P1SSAC0                           00000002
+P1SSAC1                           00000003
+P1SSBD0                           00000000
+P1SSBD1                           00000001
+P2A_PORTB                         00000003
+P2A_PORTC                         00000001
+P2B_PORTC                         00000000
+P2B_PORTD                         00000002
+P2C                               00000003
+P2D                               00000004
+P2DC0                             00000000
+P2DC1                             00000001
+P2DC2                             00000002
+P2DC3                             00000003
+P2DC4                             00000004
+P2DC5                             00000005
+P2DC6                             00000006
+P2M0                              00000006
+P2M1                              00000007
+P2RSEN                            00000007
+P2SSAC0                           00000002
+P2SSAC1                           00000003
+P2SSBD0                           00000000
+P2SSBD1                           00000001
+P3A_PORTB                         00000005
+P3A_PORTE                         00000000
+P3B                               00000001
+P3DC0                             00000000
+P3DC1                             00000001
+P3DC2                             00000002
+P3DC3                             00000003
+P3DC4                             00000004
+P3DC5                             00000005
+P3DC6                             00000006
+P3M0                              00000006
+P3M1                              00000007
+P3RSEN                            00000007
+P3SSAC0                           00000002
+P3SSAC1                           00000003
+P3SSBD0                           00000000
+P3SSBD1                           00000001
+PC                                00000FF9
+PCIE                              00000006
+PCL                               00000FF9
+PCLATH                            00000FFA
+PCLATU                            00000FFB
+PD                                00000002
+PDC0                              00000000
+PDC1                              00000001
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 39
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PDC2                              00000002
+PDC3                              00000003
+PDC4                              00000004
+PDC5                              00000005
+PDC6                              00000006
+PEIE                              00000006
+PEIE_GIEL                         00000006
+PEN                               00000002
+PGC                               00000006
+PGD                               00000007
+PIE1                              00000F9D
+PIE2                              00000FA0
+PIE3                              00000FA3
+PIE4                              00000F7A
+PIE5                              00000F7D
+PIR1                              00000F9E
+PIR2                              00000FA1
+PIR3                              00000FA4
+PIR4                              00000F7B
+PIR5                              00000F7E
+PLLEN                             00000006
+PLLRDY                            00000007
+PLUSW0                            00000FEB
+PLUSW1                            00000FE3
+PLUSW2                            00000FDB
+PMD0                              00000F3F
+PMD1                              00000F3E
+PMD2                              00000F3D
+POR                               00000001
+PORTA                             00000F80
+PORTB                             00000F81
+PORTC                             00000F82
+PORTD                             00000F83
+PORTE                             00000F84
+POSTDEC0                          00000FED
+POSTDEC1                          00000FE5
+POSTDEC2                          00000FDD
+POSTINC0                          00000FEE
+POSTINC1                          00000FE6
+POSTINC2                          00000FDE
+PR2                               00000FBB
+PR4                               00000F52
+PR6                               00000F4B
+PREINC0                           00000FEC
+PREINC1                           00000FE4
+PREINC2                           00000FDC
+PRISD                             00000002
+PROD                              00000FF3
+PRODH                             00000FF4
+PRODL                             00000FF3
+PRSEN                             00000007
+PSA                               00000003
+PSS1AC0                           00000002
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 40
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+PSS1AC1                           00000003
+PSS1BD0                           00000000
+PSS1BD1                           00000001
+PSS2AC0                           00000002
+PSS2AC1                           00000003
+PSS2BD0                           00000000
+PSS2BD1                           00000001
+PSS3AC0                           00000002
+PSS3AC1                           00000003
+PSS3BD0                           00000000
+PSS3BD1                           00000001
+PSSAC0                            00000002
+PSSAC1                            00000003
+PSSBD0                            00000000
+PSSBD1                            00000001
+PSTR1CON                          00000FB9
+PSTR2CON                          00000F63
+PSTR3CON                          00000F5A
+PSTRCON                           00000FB9
+PVCFG0                            00000002
+PVCFG1                            00000003
+PWM1CON                           00000FB7
+PWM2CON                           00000F65
+PWM3CON                           00000F5C
+PWMCON                            00000FB7
+R                                 00000002
+RA0                               00000000
+RA1                               00000001
+RA2                               00000002
+RA3                               00000003
+RA4                               00000004
+RA5                               00000005
+RA6                               00000006
+RA7                               00000007
+RB0                               00000000
+RB1                               00000001
+RB2                               00000002
+RB3                               00000003
+RB4                               00000004
+RB5                               00000005
+RB6                               00000006
+RB7                               00000007
+RBIE                              00000003
+RBIF                              00000000
+RBIP                              00000000
+RBPU                              00000007
+RC0                               00000000
+RC1                               00000001
+RC1IE                             00000005
+RC1IF                             00000005
+RC1IP                             00000005
+RC1REG                            00000FAE
+RC1STA                            00000FAB
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 41
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+RC2                               00000002
+RC2IE                             00000005
+RC2IF                             00000005
+RC2IP                             00000005
+RC2REG                            00000F74
+RC2STA                            00000F71
+RC3                               00000003
+RC4                               00000004
+RC5                               00000005
+RC6                               00000006
+RC7                               00000007
+RCEN                              00000003
+RCIDL                             00000006
+RCIE                              00000005
+RCIF                              00000005
+RCIP                              00000005
+RCON                              00000FD0
+RCREG                             00000FAE
+RCREG1                            00000FAE
+RCREG2                            00000F74
+RCSTA                             00000FAB
+RCSTA1                            00000FAB
+RCSTA2                            00000F71
+RD                                00000000
+RD0                               00000000
+RD1                               00000001
+RD16                              00000001
+RD2                               00000002
+RD3                               00000003
+RD4                               00000004
+RD5                               00000005
+RD6                               00000006
+RD7                               00000007
+RE0                               00000000
+RE1                               00000001
+RE2                               00000002
+RE3                               00000003
+RI                                00000004
+RSEN                              00000001
+RX                                00000007
+RX1                               00000007
+RX2                               00000007
+RX9                               00000006
+RX91                              00000006
+RX92                              00000006
+RX9D                              00000000
+RX9D1                             00000000
+RX9D2                             00000000
+R_NOT_W                           00000002
+R_W                               00000002
+S                                 00000003
+SBCDE                             00000002
+SBOREN                            00000006
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 42
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SCIE                              00000005
+SCK                               00000003
+SCK1                              00000003
+SCK2                              00000000
+SCKP                              00000004
+SCL                               00000003
+SCL1                              00000003
+SCL2                              00000000
+SCS0                              00000000
+SCS1                              00000001
+SDA                               00000004
+SDA1                              00000004
+SDA2                              00000001
+SDAHT                             00000003
+SDI                               00000004
+SDI1                              00000004
+SDI2                              00000001
+SDO                               00000005
+SDO1                              00000005
+SDO2                              00000004
+SEN                               00000000
+SENDB                             00000003
+SENDB1                            00000003
+SENDB2                            00000003
+SLRA                              00000000
+SLRB                              00000001
+SLRC                              00000002
+SLRCON                            00000F60
+SLRD                              00000003
+SLRE                              00000004
+SMP                               00000007
+SOSCGO                            00000003
+SOSCRUN                           00000006
+SP0                               00000000
+SP1                               00000001
+SP1BRG                            00000FAF
+SP1BRGH                           00000FB0
+SP2                               00000002
+SP2BRG                            00000F75
+SP2BRGH                           00000F76
+SP3                               00000003
+SP4                               00000004
+SPBRG                             00000FAF
+SPBRG1                            00000FAF
+SPBRG2                            00000F75
+SPBRGH                            00000FB0
+SPBRGH1                           00000FB0
+SPBRGH2                           00000F76
+SPEN                              00000007
+SPEN1                             00000007
+SPEN2                             00000007
+SRCLK0                            00000004
+SRCLK1                            00000005
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 43
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SRCLK2                            00000006
+SRCON0                            00000F47
+SRCON1                            00000F46
+SREN                              00000005
+SREN1                             00000005
+SREN2                             00000005
+SRI                               00000000
+SRLEN                             00000007
+SRNQ                              00000005
+SRNQEN                            00000002
+SRPR                              00000000
+SRPS                              00000001
+SRQ                               00000004
+SRQEN                             00000003
+SRRC1E                            00000000
+SRRC2E                            00000001
+SRRCKE                            00000002
+SRRPE                             00000003
+SRSC1E                            00000004
+SRSC2E                            00000005
+SRSCKE                            00000006
+SRSPE                             00000007
+SS                                00000005
+SS1                               00000005
+SS2                               00000003
+SSD                               0000002B
+SSD_clear                         00000252
+SSD_display                       00000246
+SSP1ADD                           00000FC8
+SSP1BUF                           00000FC9
+SSP1CON1                          00000FC6
+SSP1CON2                          00000FC5
+SSP1CON3                          00000FCB
+SSP1IE                            00000003
+SSP1IF                            00000003
+SSP1IP                            00000003
+SSP1MSK                           00000FCA
+SSP1STAT                          00000FC7
+SSP2ADD                           00000F6E
+SSP2BUF                           00000F6F
+SSP2CON1                          00000F6C
+SSP2CON2                          00000F6B
+SSP2CON3                          00000F69
+SSP2IE                            00000007
+SSP2IF                            00000007
+SSP2IP                            00000007
+SSP2MSK                           00000F6A
+SSP2STAT                          00000F6D
+SSPADD                            00000FC8
+SSPBUF                            00000FC9
+SSPCON1                           00000FC6
+SSPCON2                           00000FC5
+SSPCON3                           00000FCB
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 44
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+SSPEN                             00000005
+SSPIE                             00000003
+SSPIF                             00000003
+SSPIP                             00000003
+SSPM0                             00000000
+SSPM1                             00000001
+SSPM2                             00000002
+SSPM3                             00000003
+SSPMSK                            00000FCA
+SSPOV                             00000006
+SSPSTAT                           00000FC7
+STATUS                            00000FD8
+STKFUL                            00000007
+STKOVF                            00000007
+STKPTR                            00000FFC
+STKPTR0                           00000000
+STKPTR1                           00000001
+STKPTR2                           00000002
+STKPTR3                           00000003
+STKPTR4                           00000004
+STKUNF                            00000006
+STR1A                             00000000
+STR1B                             00000001
+STR1C                             00000002
+STR1D                             00000003
+STR1SYNC                          00000004
+STR2A                             00000000
+STR2B                             00000001
+STR2C                             00000002
+STR2D                             00000003
+STR2SYNC                          00000004
+STR3A                             00000000
+STR3B                             00000001
+STR3C                             00000002
+STR3D                             00000003
+STR3SYNC                          00000004
+SWDTE                             00000000
+SWDTEN                            00000000
+SYNC                              00000004
+SYNC1                             00000004
+SYNC2                             00000004
+Setup                             0000000C
+T08BIT                            00000006
+T0CKI                             00000004
+T0CON                             00000FD5
+T0CS                              00000005
+T0IE                              00000005
+T0IF                              00000002
+T0PS0                             00000000
+T0PS1                             00000001
+T0PS2                             00000002
+T0SE                              00000004
+T1CKI                             00000000
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 45
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T1CKPS0                           00000004
+T1CKPS1                           00000005
+T1CON                             00000FCD
+T1G                               00000005
+T1GCON                            00000FCC
+T1GGO                             00000003
+T1GGO_NOT_DONE                    00000003
+T1GPOL                            00000006
+T1GSPM                            00000004
+T1GSS0                            00000000
+T1GSS1                            00000001
+T1GTM                             00000005
+T1GVAL                            00000002
+T1G_DONE                          00000003
+T1OSCEN                           00000003
+T1OSI                             00000001
+T1OSO                             00000000
+T1RD16                            00000001
+T1SOSCEN                          00000003
+T1SYNC                            00000002
+T2CKPS0                           00000000
+T2CKPS1                           00000001
+T2CON                             00000FBA
+T2OUTPS0                          00000003
+T2OUTPS1                          00000004
+T2OUTPS2                          00000005
+T2OUTPS3                          00000006
+T3CKI_PORTB                       00000005
+T3CKI_PORTC                       00000000
+T3CKPS0                           00000004
+T3CKPS1                           00000005
+T3CON                             00000FB1
+T3G                               00000000
+T3GCON                            00000FB4
+T3GGO                             00000003
+T3GGO_NOT_DONE                    00000003
+T3GPOL                            00000006
+T3GSPM                            00000004
+T3GSS0                            00000000
+T3GSS1                            00000001
+T3GTM                             00000005
+T3GVAL                            00000002
+T3G_DONE                          00000003
+T3OSCEN                           00000003
+T3RD16                            00000001
+T3SOSCEN                          00000003
+T4CKPS0                           00000000
+T4CKPS1                           00000001
+T4CON                             00000F51
+T4OUTPS0                          00000003
+T4OUTPS1                          00000004
+T4OUTPS2                          00000005
+T4OUTPS3                          00000006
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 46
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+T5CKI                             00000002
+T5CKPS0                           00000004
+T5CKPS1                           00000005
+T5CON                             00000F4E
+T5G                               00000004
+T5GCON                            00000F4D
+T5GGO                             00000003
+T5GGO_NOT_DONE                    00000003
+T5GPOL                            00000006
+T5GSPM                            00000004
+T5GSS0                            00000000
+T5GSS1                            00000001
+T5GTM                             00000005
+T5GVAL                            00000002
+T5G_DONE                          00000003
+T5RD16                            00000001
+T5SOSCEN                          00000003
+T5SYNC                            00000002
+T6CKPS0                           00000000
+T6CKPS1                           00000001
+T6CON                             00000F4A
+T6OUTPS0                          00000003
+T6OUTPS1                          00000004
+T6OUTPS2                          00000005
+T6OUTPS3                          00000006
+TABLAT                            00000FF5
+TBLPTR                            00000FF6
+TBLPTRH                           00000FF7
+TBLPTRL                           00000FF6
+TBLPTRU                           00000FF8
+TGEN                              00000004
+TMR0                              00000FD6
+TMR0H                             00000FD7
+TMR0IE                            00000005
+TMR0IF                            00000002
+TMR0IP                            00000002
+TMR0L                             00000FD6
+TMR0ON                            00000007
+TMR1                              00000FCE
+TMR1CS0                           00000006
+TMR1CS1                           00000007
+TMR1GE                            00000007
+TMR1GIE                           00000000
+TMR1GIF                           00000000
+TMR1GIP                           00000000
+TMR1H                             00000FCF
+TMR1IE                            00000000
+TMR1IF                            00000000
+TMR1IP                            00000000
+TMR1L                             00000FCE
+TMR1MD                            00000000
+TMR1ON                            00000000
+TMR2                              00000FBC
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 47
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TMR2IE                            00000001
+TMR2IF                            00000001
+TMR2IP                            00000001
+TMR2MD                            00000001
+TMR2ON                            00000002
+TMR3                              00000FB2
+TMR3CS0                           00000006
+TMR3CS1                           00000007
+TMR3GE                            00000007
+TMR3GIE                           00000001
+TMR3GIF                           00000001
+TMR3GIP                           00000001
+TMR3H                             00000FB3
+TMR3IE                            00000001
+TMR3IF                            00000001
+TMR3IP                            00000001
+TMR3L                             00000FB2
+TMR3MD                            00000002
+TMR3ON                            00000000
+TMR4                              00000F53
+TMR4IE                            00000000
+TMR4IF                            00000000
+TMR4IP                            00000000
+TMR4MD                            00000003
+TMR4ON                            00000002
+TMR5                              00000F4F
+TMR5CS0                           00000006
+TMR5CS1                           00000007
+TMR5GE                            00000007
+TMR5GIE                           00000002
+TMR5GIF                           00000002
+TMR5GIP                           00000002
+TMR5H                             00000F50
+TMR5IE                            00000001
+TMR5IF                            00000001
+TMR5IP                            00000001
+TMR5L                             00000F4F
+TMR5MD                            00000004
+TMR5ON                            00000000
+TMR6                              00000F4C
+TMR6IE                            00000002
+TMR6IF                            00000002
+TMR6IP                            00000002
+TMR6MD                            00000005
+TMR6ON                            00000002
+TO                                00000003
+TOS                               00000FFD
+TOSH                              00000FFE
+TOSL                              00000FFD
+TOSU                              00000FFF
+TRIGSEL                           00000007
+TRISA                             00000F92
+TRISA0                            00000000
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 48
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TRISA1                            00000001
+TRISA2                            00000002
+TRISA3                            00000003
+TRISA4                            00000004
+TRISA5                            00000005
+TRISA6                            00000006
+TRISA7                            00000007
+TRISB                             00000F93
+TRISB0                            00000000
+TRISB1                            00000001
+TRISB2                            00000002
+TRISB3                            00000003
+TRISB4                            00000004
+TRISB5                            00000005
+TRISB6                            00000006
+TRISB7                            00000007
+TRISC                             00000F94
+TRISC0                            00000000
+TRISC1                            00000001
+TRISC2                            00000002
+TRISC3                            00000003
+TRISC4                            00000004
+TRISC5                            00000005
+TRISC6                            00000006
+TRISC7                            00000007
+TRISD                             00000F95
+TRISD0                            00000000
+TRISD1                            00000001
+TRISD2                            00000002
+TRISD3                            00000003
+TRISD4                            00000004
+TRISD5                            00000005
+TRISD6                            00000006
+TRISD7                            00000007
+TRISE                             00000F96
+TRISE0                            00000000
+TRISE1                            00000001
+TRISE2                            00000002
+TRMT                              00000001
+TRMT1                             00000001
+TRMT2                             00000001
+TUN0                              00000000
+TUN1                              00000001
+TUN2                              00000002
+TUN3                              00000003
+TUN4                              00000004
+TUN5                              00000005
+TX                                00000006
+TX1                               00000006
+TX1IE                             00000004
+TX1IF                             00000004
+TX1IP                             00000004
+TX1REG                            00000FAD
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 49
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+TX1STA                            00000FAC
+TX2                               00000006
+TX2IE                             00000004
+TX2IF                             00000004
+TX2IP                             00000004
+TX2REG                            00000F73
+TX2STA                            00000F72
+TX9                               00000006
+TX91                              00000006
+TX92                              00000006
+TX9D                              00000000
+TX9D1                             00000000
+TX9D2                             00000000
+TXEN                              00000005
+TXEN1                             00000005
+TXEN2                             00000005
+TXIE                              00000004
+TXIF                              00000004
+TXIP                              00000004
+TXREG                             00000FAD
+TXREG1                            00000FAD
+TXREG2                            00000F73
+TXSTA                             00000FAC
+TXSTA1                            00000FAC
+TXSTA2                            00000F72
+UA                                00000001
+UART1MD                           00000006
+UART2MD                           00000007
+VDIRMAG                           00000007
+VPP                               00000003
+VREFCON0                          00000F42
+VREFCON1                          00000F41
+VREFCON2                          00000F40
+VREFM                             00000002
+VREFN                             00000002
+VREFP                             00000003
+W                                 00000000
+WCOL                              00000007
+WDTCON                            00000FD1
+WPUB                              00000F61
+WPUB0                             00000000
+WPUB1                             00000001
+WPUB2                             00000002
+WPUB3                             00000003
+WPUB4                             00000004
+WPUB5                             00000005
+WPUB6                             00000006
+WPUB7                             00000007
+WPUE3                             00000007
+WR                                00000001
+WREG                              00000FE8
+WREN                              00000002
+WRERR                             00000003
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 50
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+WUE                               00000001
+Z                                 00000002
+_.org_1_0266                      00000266
+_.org_1_0324                      00000324
+_.org_1_032E                      0000032E
+_.org_1_0332                      00000332
+_.org_1_033C                      0000033C
+_.org_1_0340                      00000340
+_.org_1_034A                      0000034A
+_.org_1_034E                      0000034E
+_.org_1_0356                      00000356
+_.org_1_036A                      0000036A
+_.org_1_0374                      00000374
+_.org_1_0378                      00000378
+_.org_1_0382                      00000382
+_.org_1_0386                      00000386
+_.org_1_038E                      0000038E
+_.org_1_0398                      00000398
+_.org_1_039C                      0000039C
+_.org_1_03A4                      000003A4
+_.org_1_03B2                      000003B2
+_.org_1_09C4                      000009C4
+_.org_1_09D4                      000009D4
+_BOREN_NOSLP_2L                   000000FD
+_BOREN_OFF_2L                     000000F9
+_BOREN_ON_2L                      000000FB
+_BOREN_SBORDIS_2L                 000000FF
+_BORV_190_2L                      000000FF
+_BORV_220_2L                      000000F7
+_BORV_250_2L                      000000EF
+_BORV_285_2L                      000000E7
+_CCP2MX_PORTB3_3H                 000000FE
+_CCP2MX_PORTC1_3H                 000000FF
+_CCP3MX_PORTB5_3H                 000000FF
+_CCP3MX_PORTE0_3H                 000000FB
+_CONFIG1H                         00300001
+_CONFIG2H                         00300003
+_CONFIG2L                         00300002
+_CONFIG3H                         00300005
+_CONFIG4L                         00300006
+_CONFIG5H                         00300009
+_CONFIG5L                         00300008
+_CONFIG6H                         0030000B
+_CONFIG6L                         0030000A
+_CONFIG7H                         0030000D
+_CONFIG7L                         0030000C
+_CP0_OFF_5L                       000000FF
+_CP0_ON_5L                        000000FE
+_CP1_OFF_5L                       000000FF
+_CP1_ON_5L                        000000FD
+_CP2_OFF_5L                       000000FF
+_CP2_ON_5L                        000000FB
+_CP3_OFF_5L                       000000FF
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 51
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_CP3_ON_5L                        000000F7
+_CPB_OFF_5H                       000000FF
+_CPB_ON_5H                        000000BF
+_CPD_OFF_5H                       000000FF
+_CPD_ON_5H                        0000007F
+_DEBUG_OFF_4L                     000000FF
+_DEBUG_ON_4L                      0000007F
+_DEVID1                           003FFFFE
+_DEVID2                           003FFFFF
+_EBTR0_OFF_7L                     000000FF
+_EBTR0_ON_7L                      000000FE
+_EBTR1_OFF_7L                     000000FF
+_EBTR1_ON_7L                      000000FD
+_EBTR2_OFF_7L                     000000FF
+_EBTR2_ON_7L                      000000FB
+_EBTR3_OFF_7L                     000000FF
+_EBTR3_ON_7L                      000000F7
+_EBTRB_OFF_7H                     000000FF
+_EBTRB_ON_7H                      000000BF
+_FCMEN_OFF_1H                     000000BF
+_FCMEN_ON_1H                      000000FF
+_FOSC_ECHPIO6_1H                  000000F5
+_FOSC_ECHP_1H                     000000F4
+_FOSC_ECLPIO6_1H                  000000FD
+_FOSC_ECLP_1H                     000000FC
+_FOSC_ECMPIO6_1H                  000000FB
+_FOSC_ECMP_1H                     000000FA
+_FOSC_HSHP_1H                     000000F2
+_FOSC_HSMP_1H                     000000F3
+_FOSC_INTIO67_1H                  000000F8
+_FOSC_INTIO7_1H                   000000F9
+_FOSC_LP_1H                       000000F0
+_FOSC_RCIO6_1H                    000000F7
+_FOSC_RC_1H                       000000F6
+_FOSC_XT_1H                       000000F1
+_HFOFST_OFF_3H                    000000F7
+_HFOFST_ON_3H                     000000FF
+_IDLOC0                           00200000
+_IDLOC1                           00200001
+_IDLOC2                           00200002
+_IDLOC3                           00200003
+_IDLOC4                           00200004
+_IDLOC5                           00200005
+_IDLOC6                           00200006
+_IDLOC7                           00200007
+_IESO_OFF_1H                      0000007F
+_IESO_ON_1H                       000000FF
+_LVP_OFF_4L                       000000FB
+_LVP_ON_4L                        000000FF
+_MCLRE_EXTMCLR_3H                 000000FF
+_MCLRE_INTMCLR_3H                 0000007F
+_P2BMX_PORTC0_3H                  000000DF
+_P2BMX_PORTD2_3H                  000000FF
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 52
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+_PBADEN_OFF_3H                    000000FD
+_PBADEN_ON_3H                     000000FF
+_PLLCFG_OFF_1H                    000000EF
+_PLLCFG_ON_1H                     000000FF
+_PRICLKEN_OFF_1H                  000000DF
+_PRICLKEN_ON_1H                   000000FF
+_PWRTEN_OFF_2L                    000000FF
+_PWRTEN_ON_2L                     000000FE
+_STVREN_OFF_4L                    000000FE
+_STVREN_ON_4L                     000000FF
+_T3CMX_PORTB5_3H                  000000EF
+_T3CMX_PORTC0_3H                  000000FF
+_WDTEN_NOSLP_2H                   000000FD
+_WDTEN_OFF_2H                     000000FC
+_WDTEN_ON_2H                      000000FF
+_WDTEN_SWON_2H                    000000FE
+_WDTPS_1024_2H                    000000EB
+_WDTPS_128_2H                     000000DF
+_WDTPS_16384_2H                   000000FB
+_WDTPS_16_2H                      000000D3
+_WDTPS_1_2H                       000000C3
+_WDTPS_2048_2H                    000000EF
+_WDTPS_256_2H                     000000E3
+_WDTPS_2_2H                       000000C7
+_WDTPS_32768_2H                   000000FF
+_WDTPS_32_2H                      000000D7
+_WDTPS_4096_2H                    000000F3
+_WDTPS_4_2H                       000000CB
+_WDTPS_512_2H                     000000E7
+_WDTPS_64_2H                      000000DB
+_WDTPS_8192_2H                    000000F7
+_WDTPS_8_2H                       000000CF
+_WRT0_OFF_6L                      000000FF
+_WRT0_ON_6L                       000000FE
+_WRT1_OFF_6L                      000000FF
+_WRT1_ON_6L                       000000FD
+_WRT2_OFF_6L                      000000FF
+_WRT2_ON_6L                       000000FB
+_WRT3_OFF_6L                      000000FF
+_WRT3_ON_6L                       000000F7
+_WRTB_OFF_6H                      000000FF
+_WRTB_ON_6H                       000000BF
+_WRTC_OFF_6H                      000000FF
+_WRTC_ON_6H                       000000DF
+_WRTD_OFF_6H                      000000FF
+_WRTD_ON_6H                       0000007F
+_XINST_OFF_4L                     000000BF
+_XINST_ON_4L                      000000FF
+__18F45K22                        00000001
+bit_received                      00000026
+black                             00000000
+blue                              00000001
+calibrate                         00000004
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 53
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+calibrate_state4                  000001C6
+check_boom                        000003BE
+check_c                           00000816
+check_col_b                       00000924
+check_col_g                       000008F2
+check_col_n                       00000956
+check_col_r                       000008C0
+check_enter                       000008AC
+check_f                           000007E4
+check_p                           000007B2
+check_r                           00000848
+check_t                           0000087A
+clear_word                        000003B8
+colour_select                     0000018E
+count1_10ms                       00000023
+count2_10ms                       00000024
+delay_10ms                        00000988
+delay_10ms_end                    000009A4
+delay_loop_333                    000009A6
+display_menu                      00000450
+flash_333ms                       000009CC
+flash_333ms_isr                   00000000
+follow_colour                     00000003
+follow_colour_state3              00000178
+go_on_1_333                       000009AA
+go_on_2_333                       000009AE
+green                             00000002
+i2c_adress                        00000021
+i2c_data                          00000022
+i2c_receive                       00000366
+i2c_transmit                      00000320
+i2c_transmit_test                 00000158
+i2c_transmit_word                 00000140
+ini_ADC                           000002C0
+ini_I2C                           00000306
+ini_async_transmit_recieve        000002DC
+ini_external_interrupts           0000029C
+ini_oscilator                     000002B4
+ini_ports                         0000026E
+inner_loop_333                    0000002D
+letter                            00000027
+loop1_10ms                        0000098C
+loop2_10ms                        0000099A
+menu                              00000001
+menu_select                       000000F0
+menu_state1                       000000D8
+outer_loop_333                    0000002C
+power_on                          00000000
+power_on_boom                     000000C2
+power_on_state0                   0000006C
+program                           00000002
+program_state2                    00000140
+race                              00000005
+MPASM 5.87                   CODE_MODULE.ASM   5-1-2023  18:09:49         PAGE 54
+
+
+SYMBOL TABLE
+  LABEL                             VALUE 
+
+race_col                          0000002A
+race_state5                       00000204
+racing                            00000006
+receive                           000009D0
+red                               00000003
+start                             00000042
+state                             00000025
+states                            00000042
+test_B_boom                       000003E2
+test_C_c                          00000822
+test_F_f                          000007F0
+test_P_p                          000007BE
+test_R_r                          00000854
+test_T_t                          00000886
+test_col_b                        00000930
+test_col_g                        000008FE
+test_col_n                        00000962
+test_col_r                        000008CC
+test_enter_boom                   0000043A
+test_enter_c                      00000832
+test_enter_col_b                  00000940
+test_enter_col_g                  0000090E
+test_enter_col_n                  00000972
+test_enter_col_r                  000008DC
+test_enter_f                      00000800
+test_enter_p                      000007CE
+test_enter_r                      00000864
+test_enter_t                      00000896
+test_excl_boom                    00000428
+test_m_boom                       00000416
+test_o1_boom                      000003F2
+test_o2_boom                      00000404
+time                              00000007
+time_state7                       00000242
+transmit                          00000260
+vrooom_table                      000009E0
+word_checkH                       00000028
+word_checkL                       00000029
+
+Errors   :     0
+Warnings :     0 reported,     0 suppressed
+Messages :     0 reported,     0 suppressed
+
+
